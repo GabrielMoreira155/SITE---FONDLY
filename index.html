@@ -1113,16 +1113,58 @@ p{margin:0}
       elObsItem = $("#obs-item"), elCores = $("#cores"), elFotoArea = $("#foto-area");
 
   /* ---------- caneca em 3D de verdade (Three.js/WebGL) ----------
-     Cilindro real com a foto/cor aplicada como textura (o próprio
-     mapeamento de UV do cilindro cuida do enrolamento e a luz da cena
-     cuida do sombreamento da curva). Arraste horizontal gira em torno
-     do eixo vertical, arraste vertical inclina pra cima/baixo. */
+     Corpo: geometria de perfil (Lathe) — não um cilindro de tampa
+     chapada — com parede, aro da boca e base com espessura de verdade,
+     igual a uma caneca de cerâmica oca de verdade. A estampa só é
+     pintada na faixa da parede externa (a mesma faixa que a área de
+     impressão real de sublimação cobre); o resto (base, aro, parede
+     interna) recebe a cor lisa da cerâmica. Alça: um tubo de espessura
+     constante ao longo de uma curva, com as pontas embutidas dentro do
+     corpo (sem gap, sem parecer anel flutuando). Brilho e sombra vêm
+     só da luz da cena — nada é pintado na textura. Arraste horizontal
+     gira em torno do eixo vertical; arraste vertical inclina pra
+     cima/baixo. */
   var Caneca3D = (typeof THREE === "undefined") ? null : (function(){
     var canvas = document.getElementById("tela-caneca");
     if(!canvas) return null;
     var wrapEl = document.getElementById("svg-caneca");
 
-    var TEX_W = 1024, TEX_H = 533;
+    /* ---- perfil da caneca (x = raio, y = altura), de baixo pra cima
+       pela parede externa, vira no aro e volta por dentro ---- */
+    var RAIO = .5, PAREDE = .045;
+    var perfil = [
+      {x: 0,               y: -.5},    // 0 centro da base (por baixo)
+      {x: RAIO - .05,      y: -.5},    // 1 borda da base
+      {x: RAIO,            y: -.46},   // 2 pé: sobe até o raio da parede — INÍCIO da faixa de impressão
+      {x: RAIO,            y: .42},    // 3 FIM da faixa de impressão (parede externa reta)
+      {x: RAIO,            y: .5},     // 4 borda externa do aro (boca)
+      {x: RAIO - PAREDE,   y: .5},     // 5 espessura do aro (topo do lábio)
+      {x: RAIO - PAREDE,   y: .4},     // 6 parede interna descendo
+      {x: RAIO - PAREDE - .035, y: .32 }, // 7 curva pro fundo interno
+      {x: 0,               y: .29}     // 8 centro do fundo interno (a caneca é oca)
+    ];
+    var IDX_PAREDE_INICIO = 2, IDX_PAREDE_FIM = 3;
+
+    var comprimentos = [0];
+    for(var i = 1; i < perfil.length; i++){
+      var dx = perfil[i].x - perfil[i-1].x, dy = perfil[i].y - perfil[i-1].y;
+      comprimentos.push(comprimentos[i-1] + Math.sqrt(dx*dx + dy*dy));
+    }
+    var COMPRIMENTO_TOTAL = comprimentos[comprimentos.length - 1];
+    var V_INICIO = comprimentos[IDX_PAREDE_INICIO] / COMPRIMENTO_TOTAL;
+    var V_FIM = comprimentos[IDX_PAREDE_FIM] / COMPRIMENTO_TOTAL;
+    var ALTURA_PAREDE_MUNDO = perfil[IDX_PAREDE_FIM].y - perfil[IDX_PAREDE_INICIO].y;
+    var CIRCUNFERENCIA_MUNDO = 2 * Math.PI * RAIO;
+    var PROPORCAO_AREA_IMPRESSAO = CIRCUNFERENCIA_MUNDO / ALTURA_PAREDE_MUNDO;
+
+    /* ---- textura: só a faixa da parede recebe foto/estampa; o resto
+       (base, aro, parede interna) é sempre cor sólida da cerâmica ---- */
+    var TEX_W = 1024;
+    var TEX_H = Math.round((TEX_W / PROPORCAO_AREA_IMPRESSAO) / (V_FIM - V_INICIO));
+    var PIX_PAREDE_Y0 = Math.round(V_INICIO * TEX_H);
+    var PIX_PAREDE_Y1 = Math.round(V_FIM * TEX_H);
+    var PIX_PAREDE_H = PIX_PAREDE_Y1 - PIX_PAREDE_Y0;
+
     var texCanvas = document.createElement("canvas");
     texCanvas.width = TEX_W; texCanvas.height = TEX_H;
     var tctx = texCanvas.getContext("2d");
@@ -1136,7 +1178,7 @@ p{margin:0}
     var recorte = {x:0, y:0, w:0, h:0};
 
     function calcularRecorte(imagem){
-      var alvoProporcao = TEX_W / TEX_H;
+      var alvoProporcao = PROPORCAO_AREA_IMPRESSAO;
       var propImagem = imagem.naturalWidth / imagem.naturalHeight;
       if(propImagem >= alvoProporcao){
         var h = imagem.naturalHeight;
@@ -1159,46 +1201,51 @@ p{margin:0}
     }
 
     function desenharTextura(){
-      tctx.clearRect(0, 0, TEX_W, TEX_H);
+      // base inteira: cor sólida da cerâmica (cobre base, aro e parede interna também)
+      tctx.fillStyle = cor;
+      tctx.fillRect(0, 0, TEX_W, TEX_H);
+
+      // só a faixa da parede externa recebe foto ou o placeholder — nunca o resto
+      tctx.save();
+      tctx.beginPath();
+      tctx.rect(0, PIX_PAREDE_Y0, TEX_W, PIX_PAREDE_H);
+      tctx.clip();
 
       if(temFoto && img){
-        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, 0, TEX_W, TEX_H);
+        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, PIX_PAREDE_Y0, TEX_W, PIX_PAREDE_H);
       } else {
-        tctx.fillStyle = cor;
-        tctx.fillRect(0, 0, TEX_W, TEX_H);
-      }
-
-      if(!temFoto){
         tctx.save();
         tctx.textAlign = "center";
         tctx.fillStyle = "#C86A8C";
-        tctx.font = "800 " + Math.round(TEX_H * .072) + "px Nunito, sans-serif";
-        tctx.fillText("SUA FOTO", TEX_W / 2, TEX_H * .42);
-        tctx.font = "700 " + Math.round(TEX_H * .042) + "px Nunito, sans-serif";
-        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, TEX_H * .465);
+        tctx.font = "800 " + Math.round(PIX_PAREDE_H * .16) + "px Nunito, sans-serif";
+        tctx.fillText("SUA FOTO", TEX_W / 2, PIX_PAREDE_Y0 + PIX_PAREDE_H * .38);
+        tctx.font = "700 " + Math.round(PIX_PAREDE_H * .095) + "px Nunito, sans-serif";
+        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, PIX_PAREDE_Y0 + PIX_PAREDE_H * .5);
         tctx.restore();
       }
 
-      var faixaW = TEX_W * .42, faixaH = TEX_H * .17;
-      var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .61;
+      var faixaW = TEX_W * .42, faixaH = PIX_PAREDE_H * .34;
+      var faixaX = TEX_W / 2 - faixaW / 2, faixaY = PIX_PAREDE_Y0 + PIX_PAREDE_H * .62;
       tctx.save();
       caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
       tctx.fillStyle = "rgba(255,255,255,.88)";
       tctx.fill();
       tctx.textAlign = "center";
-      var tamFonte = Math.round(TEX_H * .078);
+      var tamFonte = Math.round(faixaH * .46);
       tctx.font = tamFonte + "px Caveat, cursive";
       if(linhasLegenda.length === 0){
         tctx.fillStyle = "#C7ADB2";
         tctx.fillText("sua frase aqui", TEX_W / 2, faixaY + faixaH * .64);
       } else {
         tctx.fillStyle = "#3A2148";
-        var baseY = linhasLegenda.length === 2 ? faixaY + faixaH * .42 : faixaY + faixaH * .64;
+        var baseY = linhasLegenda.length === 2 ? faixaY + faixaH * .4 : faixaY + faixaH * .64;
         linhasLegenda.forEach(function(linha, i){
           tctx.fillText(linha, TEX_W / 2, baseY + i * tamFonte);
         });
       }
       tctx.restore();
+
+      tctx.restore(); // fecha o clip da faixa da parede
 
       if(textura) textura.needsUpdate = true;
     }
@@ -1207,41 +1254,50 @@ p{margin:0}
     var renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true});
     renderer.setPixelRatio(DPR);
     renderer.setSize(400, 330, false);
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.physicallyCorrectLights = false;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.1;
 
     var scene = new THREE.Scene();
     var aspecto = 400 / 330;
-    var altFrustum = 2.5;
+    var altFrustum = 1.62;
     var camera = new THREE.OrthographicCamera(
       -altFrustum * aspecto / 2, altFrustum * aspecto / 2, altFrustum / 2, -altFrustum / 2, 0.1, 100
     );
-    camera.position.set(0, 0.05, 5);
-    camera.lookAt(0, 0.05, 0);
+    camera.position.set(0, .04, 5);
+    camera.lookAt(0, .04, 0);
 
-    scene.add(new THREE.AmbientLight(0xffffff, .68));
-    var luzPrincipal = new THREE.DirectionalLight(0xffffff, .68);
-    luzPrincipal.position.set(1.1, 1.6, 2);
+    scene.add(new THREE.AmbientLight(0xffffff, .42));
+    var luzPrincipal = new THREE.DirectionalLight(0xffffff, .5);
+    luzPrincipal.position.set(2.3, .35, 1.7);
     scene.add(luzPrincipal);
-    var luzPreenchimento = new THREE.DirectionalLight(0xffffff, .22);
-    luzPreenchimento.position.set(-1.4, -.4, 1.2);
+    var luzPreenchimento = new THREE.DirectionalLight(0xffffff, .28);
+    luzPreenchimento.position.set(-2, .1, 1.2);
     scene.add(luzPreenchimento);
 
     var grupo = new THREE.Group();
     scene.add(grupo);
 
-    var RAIO = .6, ALTURA = 1.22;
     var textura = new THREE.CanvasTexture(texCanvas);
     textura.wrapS = THREE.RepeatWrapping;
     textura.offset.x = .5;
-    var materialCorpo = new THREE.MeshStandardMaterial({map: textura, roughness: .5, metalness: .05});
-    var corpo = new THREE.Mesh(new THREE.CylinderGeometry(RAIO, RAIO, ALTURA, 64, 1), materialCorpo);
+    textura.encoding = THREE.sRGBEncoding;
+    textura.anisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
+
+    var materialCorpo = new THREE.MeshStandardMaterial({map: textura, roughness: .4, metalness: 0});
+    var pontosLathe = perfil.map(function(p){ return new THREE.Vector2(p.x, p.y); });
+    var corpo = new THREE.Mesh(new THREE.LatheGeometry(pontosLathe, 72), materialCorpo);
     grupo.add(corpo);
 
-    var materialCabo = new THREE.MeshStandardMaterial({color: cor, roughness: .5, metalness: .05});
-    var cabo = new THREE.Mesh(new THREE.TorusGeometry(.3, .078, 20, 40, Math.PI * 1.5), materialCabo);
-    cabo.scale.set(1, 1.22, .85);
-    cabo.rotation.z = Math.PI * .75;
-    cabo.rotation.y = Math.PI / 2;
-    cabo.position.set(RAIO + .05, 0, 0);
+    var materialCabo = new THREE.MeshStandardMaterial({color: cor, roughness: .34, metalness: 0});
+    var curvaCabo = new THREE.CubicBezierCurve3(
+      new THREE.Vector3(RAIO * .58, .3, 0),
+      new THREE.Vector3(RAIO * 1.84, .33, 0),
+      new THREE.Vector3(RAIO * 1.84, -.33, 0),
+      new THREE.Vector3(RAIO * .58, -.3, 0)
+    );
+    var cabo = new THREE.Mesh(new THREE.TubeGeometry(curvaCabo, 48, .048, 14, false), materialCabo);
     grupo.add(cabo);
 
     function renderizar(){ renderer.render(scene, camera); }
@@ -1251,7 +1307,7 @@ p{margin:0}
 
     var arrastando = false, ultimoX = 0, ultimoY = 0;
     var rotY = 0, rotX = 0;
-    var LIMITE_X = .85;
+    var LIMITE_X = .78;
 
     function aplicarRotacao(){
       grupo.rotation.y = rotY;
