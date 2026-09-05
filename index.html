@@ -252,7 +252,7 @@ p{margin:0}
 
 .produto-svg{display:block;margin:0 auto;width:100%;max-width:400px}
 .produto-svg[hidden]{display:none}
-.produto-3d{position:relative;cursor:grab;touch-action:pan-y;-webkit-user-select:none;user-select:none}
+.produto-3d{position:relative;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
 .produto-3d:active{cursor:grabbing}
 .produto-3d canvas{display:block;width:100%;height:auto}
 .produto-3d .dica-girar{
@@ -642,8 +642,8 @@ p{margin:0}
 
         <!-- CANECA -->
         <div class="produto-svg produto-3d" id="svg-caneca">
-          <canvas id="tela-caneca" width="400" height="330" role="img" aria-label="Prévia da caneca personalizada em 3D, arraste para girar"></canvas>
-          <span class="dica-girar">↔ arraste pra girar</span>
+          <canvas id="tela-caneca" width="400" height="330" role="img" aria-label="Prévia da caneca personalizada em 3D, arraste em qualquer direção para girar"></canvas>
+          <span class="dica-girar">✛ arraste pra girar</span>
         </div>
 
         <!-- CAMISETA -->
@@ -989,6 +989,7 @@ p{margin:0}
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 00-8.6 15L2 22l5.2-1.4A10 10 0 1012 2zm5.8 14.2c-.2.7-1.4 1.3-2 1.4-.5.1-1.1.1-1.8-.1-.4-.1-1-.3-1.7-.6-3-1.3-4.9-4.3-5-4.5-.2-.2-1.2-1.6-1.2-3s.7-2.1 1-2.4c.3-.3.6-.4.8-.4h.6c.2 0 .4 0 .7.5l.9 2.2c.1.2.1.4 0 .6l-.4.5-.3.4c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.2.4-.2.6-.1l2.1 1c.3.1.5.2.5.4.1.1.1.7-.1 1.4z"/></svg>
 </a>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 (function(){
   "use strict";
@@ -1111,33 +1112,31 @@ p{margin:0}
       elFoto = $("#foto"), elFotoNome = $("#foto-nome"), elValor = $("#valor"),
       elObsItem = $("#obs-item"), elCores = $("#cores"), elFotoArea = $("#foto-area");
 
-  /* ---------- caneca em "3D" (canvas, arraste pra girar) ----------
-     Sem biblioteca 3D: a caneca é tratada como um cilindro e a foto é
-     desenhada em fatias verticais, cada uma amostrada num ângulo da
-     textura + sombreada conforme o ângulo, pra simular a curva. Isso
-     mantém o site leve (sem Three.js) e rápido no celular. */
-  var Caneca3D = (function(){
+  /* ---------- caneca em 3D de verdade (Three.js/WebGL) ----------
+     Cilindro real com a foto/cor aplicada como textura (o próprio
+     mapeamento de UV do cilindro cuida do enrolamento e a luz da cena
+     cuida do sombreamento da curva). Arraste horizontal gira em torno
+     do eixo vertical, arraste vertical inclina pra cima/baixo. */
+  var Caneca3D = (typeof THREE === "undefined") ? null : (function(){
     var canvas = document.getElementById("tela-caneca");
     if(!canvas) return null;
     var wrapEl = document.getElementById("svg-caneca");
-    var ctx = canvas.getContext("2d");
-    var DPR = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = 400 * DPR;
-    canvas.height = 330 * DPR;
-    ctx.scale(DPR, DPR);
 
-    var BODY = {x:72, y:62, w:196, h:204, r:15};
-    var N_FATIAS = 56;
+    var TEX_W = 1024, TEX_H = 533;
+    var texCanvas = document.createElement("canvas");
+    texCanvas.width = TEX_W; texCanvas.height = TEX_H;
+    var tctx = texCanvas.getContext("2d");
 
-    var rot = 0;
-    var arrastando = false;
-    var ultimoX = 0;
+    var cor = "#FFFFFF";
+    var stroke = "#ECD9E7";
+    var linhasLegenda = [];
+    var temFoto = false;
     var img = null;
     var srcAtual = "";
     var recorte = {x:0, y:0, w:0, h:0};
 
     function calcularRecorte(imagem){
-      var alvoProporcao = (2 * BODY.w) / BODY.h;
+      var alvoProporcao = TEX_W / TEX_H;
       var propImagem = imagem.naturalWidth / imagem.naturalHeight;
       if(propImagem >= alvoProporcao){
         var h = imagem.naturalHeight;
@@ -1148,155 +1147,129 @@ p{margin:0}
       var h2 = w2 / alvoProporcao;
       return {x:0, y:(imagem.naturalHeight - h2) / 2, w:w2, h:h2};
     }
-    var cor = "#FFFFFF";
-    var stroke = "#ECD9E7";
-    var linhasLegenda = [];
-    var temFoto = false;
 
     function caminhoArredondado(x, y, w, h, r){
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      ctx.closePath();
+      tctx.beginPath();
+      tctx.moveTo(x + r, y);
+      tctx.arcTo(x + w, y, x + w, y + h, r);
+      tctx.arcTo(x + w, y + h, x, y + h, r);
+      tctx.arcTo(x, y + h, x, y, r);
+      tctx.arcTo(x, y, x + w, y, r);
+      tctx.closePath();
     }
 
-    function desenhar(){
-      ctx.clearRect(0, 0, 400, 330);
-
-      ctx.save();
-      ctx.globalAlpha = .1;
-      ctx.fillStyle = "#5C3670";
-      ctx.beginPath();
-      ctx.ellipse(176, 292, 118, 14, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.save();
-      caminhoArredondado(BODY.x, BODY.y, BODY.w, BODY.h, BODY.r);
-      ctx.clip();
+    function desenharTextura(){
+      tctx.clearRect(0, 0, TEX_W, TEX_H);
 
       if(temFoto && img){
-        var stripW = BODY.w / N_FATIAS + 0.75;
-        for(var i = 0; i < N_FATIAS; i++){
-          var u = (i + 0.5) / N_FATIAS;
-          var anguloVisivel = (u - 0.5) * 180;
-          var anguloTextura = ((anguloVisivel + rot) % 360 + 360) % 360;
-          var sx = recorte.x + (anguloTextura / 360) * recorte.w;
-          var sw = (recorte.w / 360) * (180 / N_FATIAS) + 1;
-          if(sx + sw > recorte.x + recorte.w) sw = (recorte.x + recorte.w) - sx;
-          var dx = BODY.x + i * (BODY.w / N_FATIAS);
-          ctx.drawImage(img, sx, recorte.y, Math.max(sw,1), recorte.h, dx, BODY.y, stripW, BODY.h);
-
-          var brilho = 0.45 + 0.55 * Math.cos(anguloVisivel * Math.PI / 180);
-          ctx.fillStyle = "#000";
-          ctx.globalAlpha = Math.max(0, (1 - brilho) * 0.6);
-          ctx.fillRect(dx, BODY.y, stripW, BODY.h);
-          ctx.globalAlpha = 1;
-        }
+        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, 0, TEX_W, TEX_H);
       } else {
-        ctx.fillStyle = cor;
-        ctx.fillRect(BODY.x, BODY.y, BODY.w, BODY.h);
-        var sombraVolume = ctx.createLinearGradient(BODY.x, 0, BODY.x + BODY.w, 0);
-        sombraVolume.addColorStop(0, "rgba(0,0,0,.16)");
-        sombraVolume.addColorStop(.5, "rgba(255,255,255,.14)");
-        sombraVolume.addColorStop(1, "rgba(0,0,0,.2)");
-        ctx.fillStyle = sombraVolume;
-        ctx.fillRect(BODY.x, BODY.y, BODY.w, BODY.h);
+        tctx.fillStyle = cor;
+        tctx.fillRect(0, 0, TEX_W, TEX_H);
       }
-      ctx.restore();
-
-      ctx.save();
-      (function desenharCabo(){
-        /* O cabo desliza de um lado a outro da caneca acompanhando o
-           giro, sempre visível (sem sumir), fechando numa linha fina
-           bem no meio ao trocar de lado — em rot=0 fica idêntico ao
-           visual original (borda direita, aberto). Desenhado depois do
-           preenchimento do corpo pra não ser encoberto quando desliza
-           por cima da área da caneca. */
-        var anguloRad = rot * Math.PI / 180;
-        var t = (Math.cos(anguloRad) + 1) / 2;
-        var attachX = BODY.x + t * BODY.w;
-        var bulgeW = Math.cos(anguloRad) * 68;
-
-        ctx.strokeStyle = cor;
-        ctx.lineWidth = 21;
-        ctx.lineCap = "round";
-        ctx.beginPath();
-        ctx.moveTo(attachX, 108);
-        ctx.bezierCurveTo(attachX + bulgeW, 108, attachX + bulgeW, 214, attachX, 214);
-        ctx.stroke();
-        ctx.lineWidth = 1.5;
-        ctx.strokeStyle = stroke;
-        ctx.stroke();
-      })();
-      ctx.restore();
-
-      ctx.save();
-      caminhoArredondado(BODY.x, BODY.y, BODY.w, BODY.h, BODY.r);
-      ctx.strokeStyle = stroke;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.restore();
 
       if(!temFoto){
-        ctx.save();
-        ctx.textAlign = "center";
-        ctx.fillStyle = "#C86A8C";
-        ctx.font = "800 15px Nunito, sans-serif";
-        ctx.fillText("SUA FOTO", 170, 160);
-        ctx.font = "700 9px Nunito, sans-serif";
-        ctx.fillText("vira a arte da caneca inteira", 170, 178);
-        ctx.restore();
+        tctx.save();
+        tctx.textAlign = "center";
+        tctx.fillStyle = "#C86A8C";
+        tctx.font = "800 " + Math.round(TEX_H * .072) + "px Nunito, sans-serif";
+        tctx.fillText("SUA FOTO", TEX_W / 2, TEX_H * .42);
+        tctx.font = "700 " + Math.round(TEX_H * .042) + "px Nunito, sans-serif";
+        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, TEX_H * .465);
+        tctx.restore();
       }
 
-      ctx.save();
-      caminhoArredondado(98, 222, 144, 34, 16);
-      ctx.fillStyle = "rgba(255,255,255,.88)";
-      ctx.fill();
-      ctx.textAlign = "center";
-      ctx.font = "16px Caveat, cursive";
+      var faixaW = TEX_W * .42, faixaH = TEX_H * .17;
+      var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .61;
+      tctx.save();
+      caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
+      tctx.fillStyle = "rgba(255,255,255,.88)";
+      tctx.fill();
+      tctx.textAlign = "center";
+      var tamFonte = Math.round(TEX_H * .078);
+      tctx.font = tamFonte + "px Caveat, cursive";
       if(linhasLegenda.length === 0){
-        ctx.fillStyle = "#C7ADB2";
-        ctx.fillText("sua frase aqui", 170, 244);
+        tctx.fillStyle = "#C7ADB2";
+        tctx.fillText("sua frase aqui", TEX_W / 2, faixaY + faixaH * .64);
       } else {
-        ctx.fillStyle = "#3A2148";
-        var baseY = linhasLegenda.length === 2 ? 236 : 244;
+        tctx.fillStyle = "#3A2148";
+        var baseY = linhasLegenda.length === 2 ? faixaY + faixaH * .42 : faixaY + faixaH * .64;
         linhasLegenda.forEach(function(linha, i){
-          ctx.fillText(linha, 170, baseY + i * 16);
+          tctx.fillText(linha, TEX_W / 2, baseY + i * tamFonte);
         });
       }
-      ctx.restore();
+      tctx.restore();
 
-      ctx.save();
-      caminhoArredondado(BODY.x, BODY.y, BODY.w, BODY.h, BODY.r);
-      ctx.clip();
-      var brilhoGeral = ctx.createLinearGradient(BODY.x, 0, BODY.x + BODY.w, 0);
-      brilhoGeral.addColorStop(0, "rgba(0,0,0,.13)");
-      brilhoGeral.addColorStop(.18, "rgba(255,255,255,.35)");
-      brilhoGeral.addColorStop(.75, "rgba(0,0,0,0)");
-      brilhoGeral.addColorStop(1, "rgba(0,0,0,.17)");
-      ctx.fillStyle = brilhoGeral;
-      ctx.fillRect(BODY.x, BODY.y, BODY.w, BODY.h);
-      ctx.restore();
+      if(textura) textura.needsUpdate = true;
     }
 
-    function girarPara(clienteX){
-      var dx = clienteX - ultimoX;
-      ultimoX = clienteX;
-      rot = ((rot - dx * 0.6) % 360 + 360) % 360;
-      desenhar();
+    var DPR = Math.min(window.devicePixelRatio || 1, 2);
+    var renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true, alpha: true});
+    renderer.setPixelRatio(DPR);
+    renderer.setSize(400, 330, false);
+
+    var scene = new THREE.Scene();
+    var aspecto = 400 / 330;
+    var altFrustum = 2.5;
+    var camera = new THREE.OrthographicCamera(
+      -altFrustum * aspecto / 2, altFrustum * aspecto / 2, altFrustum / 2, -altFrustum / 2, 0.1, 100
+    );
+    camera.position.set(0, 0.05, 5);
+    camera.lookAt(0, 0.05, 0);
+
+    scene.add(new THREE.AmbientLight(0xffffff, .68));
+    var luzPrincipal = new THREE.DirectionalLight(0xffffff, .68);
+    luzPrincipal.position.set(1.1, 1.6, 2);
+    scene.add(luzPrincipal);
+    var luzPreenchimento = new THREE.DirectionalLight(0xffffff, .22);
+    luzPreenchimento.position.set(-1.4, -.4, 1.2);
+    scene.add(luzPreenchimento);
+
+    var grupo = new THREE.Group();
+    scene.add(grupo);
+
+    var RAIO = .6, ALTURA = 1.22;
+    var textura = new THREE.CanvasTexture(texCanvas);
+    textura.wrapS = THREE.RepeatWrapping;
+    textura.offset.x = .5;
+    var materialCorpo = new THREE.MeshStandardMaterial({map: textura, roughness: .5, metalness: .05});
+    var corpo = new THREE.Mesh(new THREE.CylinderGeometry(RAIO, RAIO, ALTURA, 64, 1), materialCorpo);
+    grupo.add(corpo);
+
+    var materialCabo = new THREE.MeshStandardMaterial({color: cor, roughness: .5, metalness: .05});
+    var cabo = new THREE.Mesh(new THREE.TorusGeometry(.3, .078, 20, 40, Math.PI * 1.5), materialCabo);
+    cabo.scale.set(1, 1.22, .85);
+    cabo.rotation.z = Math.PI * .75;
+    cabo.rotation.y = Math.PI / 2;
+    cabo.position.set(RAIO + .05, 0, 0);
+    grupo.add(cabo);
+
+    function renderizar(){ renderer.render(scene, camera); }
+
+    desenharTextura();
+    renderizar();
+
+    var arrastando = false, ultimoX = 0, ultimoY = 0;
+    var rotY = 0, rotX = 0;
+    var LIMITE_X = .85;
+
+    function aplicarRotacao(){
+      grupo.rotation.y = rotY;
+      grupo.rotation.x = rotX;
+      renderizar();
     }
 
     canvas.addEventListener("pointerdown", function(e){
-      arrastando = true; ultimoX = e.clientX;
+      arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
       canvas.setPointerCapture(e.pointerId);
     });
     canvas.addEventListener("pointermove", function(e){
       if(!arrastando) return;
-      girarPara(e.clientX);
+      var dx = e.clientX - ultimoX, dy = e.clientY - ultimoY;
+      ultimoX = e.clientX; ultimoY = e.clientY;
+      rotY += dx * .012;
+      rotX = Math.max(-LIMITE_X, Math.min(LIMITE_X, rotX - dy * .012));
+      aplicarRotacao();
     });
     function soltar(){ arrastando = false; }
     canvas.addEventListener("pointerup", soltar);
@@ -1304,26 +1277,36 @@ p{margin:0}
     canvas.addEventListener("pointerleave", soltar);
 
     if(document.fonts && document.fonts.ready){
-      document.fonts.ready.then(function(){ desenhar(); });
+      document.fonts.ready.then(function(){ desenharTextura(); renderizar(); });
     }
 
     return {
-      setCor: function(novaCor, novoStroke){ cor = novaCor; stroke = novoStroke; desenhar(); },
-      setLegenda: function(linhas){ linhasLegenda = linhas || []; desenhar(); },
+      setCor: function(novaCor, novoStroke){
+        cor = novaCor; stroke = novoStroke;
+        materialCabo.color.set(cor);
+        desenharTextura();
+        renderizar();
+      },
+      setLegenda: function(linhas){
+        linhasLegenda = linhas || [];
+        desenharTextura();
+        renderizar();
+      },
       setFoto: function(url){
         temFoto = !!url;
-        if(!url){ img = null; srcAtual = ""; desenhar(); return; }
-        if(url === srcAtual){ desenhar(); return; }
+        if(!url){ img = null; srcAtual = ""; desenharTextura(); renderizar(); return; }
+        if(url === srcAtual){ desenharTextura(); renderizar(); return; }
         srcAtual = url;
         var novaImg = new Image();
         novaImg.onload = function(){
           img = novaImg;
           recorte = calcularRecorte(novaImg);
-          desenhar();
+          desenharTextura();
+          renderizar();
         };
         novaImg.src = url;
       },
-      pronto: function(){ if(wrapEl) wrapEl.classList.add("pronto"); desenhar(); }
+      pronto: function(){ if(wrapEl) wrapEl.classList.add("pronto"); renderizar(); }
     };
   })();
 
