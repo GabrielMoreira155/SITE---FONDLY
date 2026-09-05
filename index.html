@@ -1589,6 +1589,33 @@ p{margin:0}
   aplicarAreasImpressao();
   render();
   if(Caneca3D) Caneca3D.pronto();
+
+  /* Alguns navegadores in-app (WhatsApp, Instagram) pré-renderizam a
+     página escondida antes de exibi-la — as animações de entrada da
+     hero, que rodam sozinhas ao carregar, terminam nesse tempo escondido
+     e o usuário nunca chega a ver o movimento. Reinicia essas animações
+     assim que a aba realmente fica visível pela primeira vez. */
+  (function(){
+    var elementosEntrada = $$(".hero-logo, .hero-intro .rotulo, .hero-intro h1, .hero-intro .lead, .hero-intro .frase-marca, .montagem, .palco");
+    var jaTocou = false;
+    function tocarEntrada(){
+      if(jaTocou) return;
+      jaTocou = true;
+      elementosEntrada.forEach(function(el){ el.style.animation = "none"; });
+      void document.body.offsetHeight;
+      elementosEntrada.forEach(function(el){ el.style.animation = ""; });
+    }
+    if(document.visibilityState === "visible"){
+      tocarEntrada();
+    } else {
+      document.addEventListener("visibilitychange", function aoFicarVisivel(){
+        if(document.visibilityState === "visible"){
+          tocarEntrada();
+          document.removeEventListener("visibilitychange", aoFicarVisivel);
+        }
+      });
+    }
+  })();
 })();
 </script>
 </body>
