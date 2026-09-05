@@ -1134,6 +1134,20 @@ p{margin:0}
     var ultimoX = 0;
     var img = null;
     var srcAtual = "";
+    var recorte = {x:0, y:0, w:0, h:0};
+
+    function calcularRecorte(imagem){
+      var alvoProporcao = (2 * BODY.w) / BODY.h;
+      var propImagem = imagem.naturalWidth / imagem.naturalHeight;
+      if(propImagem >= alvoProporcao){
+        var h = imagem.naturalHeight;
+        var w = h * alvoProporcao;
+        return {x:(imagem.naturalWidth - w) / 2, y:0, w:w, h:h};
+      }
+      var w2 = imagem.naturalWidth;
+      var h2 = w2 / alvoProporcao;
+      return {x:0, y:(imagem.naturalHeight - h2) / 2, w:w2, h:h2};
+    }
     var cor = "#FFFFFF";
     var stroke = "#ECD9E7";
     var linhasLegenda = [];
@@ -1180,11 +1194,11 @@ p{margin:0}
           var u = (i + 0.5) / N_FATIAS;
           var anguloVisivel = (u - 0.5) * 180;
           var anguloTextura = ((anguloVisivel + rot) % 360 + 360) % 360;
-          var sx = (anguloTextura / 360) * img.naturalWidth;
-          var sw = (img.naturalWidth / 360) * (180 / N_FATIAS) + 1;
-          if(sx + sw > img.naturalWidth) sw = img.naturalWidth - sx;
+          var sx = recorte.x + (anguloTextura / 360) * recorte.w;
+          var sw = (recorte.w / 360) * (180 / N_FATIAS) + 1;
+          if(sx + sw > recorte.x + recorte.w) sw = (recorte.x + recorte.w) - sx;
           var dx = BODY.x + i * (BODY.w / N_FATIAS);
-          ctx.drawImage(img, sx, 0, Math.max(sw,1), img.naturalHeight, dx, BODY.y, stripW, BODY.h);
+          ctx.drawImage(img, sx, recorte.y, Math.max(sw,1), recorte.h, dx, BODY.y, stripW, BODY.h);
 
           var brilho = 0.45 + 0.55 * Math.cos(anguloVisivel * Math.PI / 180);
           ctx.fillStyle = "#000";
@@ -1298,6 +1312,7 @@ p{margin:0}
         var novaImg = new Image();
         novaImg.onload = function(){
           img = novaImg;
+          recorte = calcularRecorte(novaImg);
           desenhar();
         };
         novaImg.src = url;
