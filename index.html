@@ -1162,19 +1162,27 @@ p{margin:0}
     var temFoto = false;
     var img = null;
     var srcAtual = "";
-    var recorte = {x:0, y:0, w:0, h:0};
+    var encaixe = {x:0, y:0, w:0, h:0};
 
-    function calcularRecorte(imagem){
+    /* "contain", não "cover": a foto inteira do cliente sempre aparece,
+       do jeito que ela é — não recorta nada. Como a área de impressão é
+       bem mais larga que alta (é o desenrolar da caneca inteira), uma
+       foto normal de celular (retrato) nunca vai preencher os dois lados
+       ao mesmo tempo sem cortar; então ela é encaixada usando a altura
+       toda da parede, centralizada, e o que sobrar nas laterais fica na
+       cor lisa da cerâmica — assim qualquer foto, de qualquer formato,
+       aparece completa e sem distorcer. */
+    function calcularEncaixe(imagem){
       var alvoProporcao = PROPORCAO_AREA_IMPRESSAO;
       var propImagem = imagem.naturalWidth / imagem.naturalHeight;
       if(propImagem >= alvoProporcao){
-        var h = imagem.naturalHeight;
-        var w = h * alvoProporcao;
-        return {x:(imagem.naturalWidth - w) / 2, y:0, w:w, h:h};
+        var w = TEX_W;
+        var h = w / propImagem;
+        return {x:0, y:(TEX_H - h) / 2, w:w, h:h};
       }
-      var w2 = imagem.naturalWidth;
-      var h2 = w2 / alvoProporcao;
-      return {x:0, y:(imagem.naturalHeight - h2) / 2, w:w2, h:h2};
+      var h2 = TEX_H;
+      var w2 = h2 * propImagem;
+      return {x:(TEX_W - w2) / 2, y:0, w:w2, h:h2};
     }
 
     function caminhoArredondado(x, y, w, h, r){
@@ -1188,12 +1196,12 @@ p{margin:0}
     }
 
     function desenharTextura(){
+      tctx.fillStyle = cor;
+      tctx.fillRect(0, 0, TEX_W, TEX_H);
+
       if(temFoto && img){
-        tctx.clearRect(0, 0, TEX_W, TEX_H);
-        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, 0, TEX_W, TEX_H);
+        tctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, encaixe.x, encaixe.y, encaixe.w, encaixe.h);
       } else {
-        tctx.fillStyle = cor;
-        tctx.fillRect(0, 0, TEX_W, TEX_H);
         tctx.save();
         tctx.textAlign = "center";
         tctx.fillStyle = "#C86A8C";
@@ -1204,7 +1212,8 @@ p{margin:0}
         tctx.restore();
       }
 
-      var faixaW = TEX_W * .42, faixaH = TEX_H * .34;
+      var larguraDisponivel = (temFoto && img) ? encaixe.w : TEX_W;
+      var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
       tctx.save();
       caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
@@ -1363,7 +1372,7 @@ p{margin:0}
         var novaImg = new Image();
         novaImg.onload = function(){
           img = novaImg;
-          recorte = calcularRecorte(novaImg);
+          encaixe = calcularEncaixe(novaImg);
           desenharTextura();
           renderizar();
         };
