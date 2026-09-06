@@ -1113,57 +1113,44 @@ p{margin:0}
       elObsItem = $("#obs-item"), elCores = $("#cores"), elFotoArea = $("#foto-area");
 
   /* ---------- caneca em 3D de verdade (Three.js/WebGL) ----------
-     Corpo: geometria de perfil (Lathe) — não um cilindro de tampa
-     chapada — com parede, aro da boca e base com espessura de verdade,
-     igual a uma caneca de cerâmica oca de verdade. A estampa só é
-     pintada na faixa da parede externa (a mesma faixa que a área de
-     impressão real de sublimação cobre); o resto (base, aro, parede
-     interna) recebe a cor lisa da cerâmica. Alça: um tubo de espessura
-     constante ao longo de uma curva, com as pontas embutidas dentro do
-     corpo (sem gap, sem parecer anel flutuando). Brilho e sombra vêm
-     só da luz da cena — nada é pintado na textura. Arraste horizontal
-     gira em torno do eixo vertical; arraste vertical inclina pra
-     cima/baixo. */
+     O corpo é montado com peças simples separadas (não uma única
+     geometria de perfil complexa) porque o mapeamento V do
+     LatheGeometry no three.js divide o V IGUALMENTE por índice de
+     ponto do perfil, não pela distância real entre eles — então um
+     segmento fisicamente enorme (a parede) e um minúsculo (a espessura
+     do aro) acabam ocupando a MESMA fatia de textura, e a parede real
+     (a maior parte da caneca) acaba sendo renderizada com uma fatia de
+     textura pensada pra um pedaço bem menor, dando exatamente o efeito
+     de "faixa fina no topo, resto em branco" que aparecia com foto.
+     Usando um cilindro simples só pra parede (UV bem conhecido, u=volta
+     completa, v=0..1 direto) evita esse problema por construção.
+     Peças: parede externa (recebe foto/cor, único lugar com textura),
+     aro da boca (anel), parede interna curta + fundo interno (dão
+     profundidade real ao olhar por dentro) e base (disco). Alça: tubo
+     de espessura constante com as pontas embutidas no corpo. Brilho e
+     sombra vêm só da luz da cena — nada é pintado na textura. Arraste
+     horizontal gira em torno do eixo vertical; arraste vertical
+     inclina pra cima/baixo. */
   var Caneca3D = (typeof THREE === "undefined") ? null : (function(){
     var canvas = document.getElementById("tela-caneca");
     if(!canvas) return null;
     var wrapEl = document.getElementById("svg-caneca");
 
-    /* ---- perfil da caneca (x = raio, y = altura), de baixo pra cima
-       pela parede externa, vira no aro e volta por dentro ---- */
     var RAIO = .5, PAREDE = .045;
-    var perfil = [
-      {x: 0,               y: -.5},    // 0 centro da base (por baixo)
-      {x: RAIO - .05,      y: -.5},    // 1 borda da base
-      {x: RAIO,            y: -.46},   // 2 pé: sobe até o raio da parede — INÍCIO da faixa de impressão
-      {x: RAIO,            y: .42},    // 3 FIM da faixa de impressão (parede externa reta)
-      {x: RAIO,            y: .5},     // 4 borda externa do aro (boca)
-      {x: RAIO - PAREDE,   y: .5},     // 5 espessura do aro (topo do lábio)
-      {x: RAIO - PAREDE,   y: .4},     // 6 parede interna descendo
-      {x: RAIO - PAREDE - .035, y: .32 }, // 7 curva pro fundo interno
-      {x: 0,               y: .29}     // 8 centro do fundo interno (a caneca é oca)
-    ];
-    var IDX_PAREDE_INICIO = 2, IDX_PAREDE_FIM = 3;
+    var ALTURA_PAREDE = .82;           // altura da parede externa (área de impressão)
+    var ALTURA_INTERNA = .1;           // profundidade visível da parede interna, logo abaixo do aro
+    var Y_TOPO = ALTURA_PAREDE / 2;    // boca da caneca
+    var Y_BASE = -ALTURA_PAREDE / 2;   // base da caneca
+    var Y_FUNDO_INTERNO = Y_TOPO - ALTURA_INTERNA;
 
-    var comprimentos = [0];
-    for(var i = 1; i < perfil.length; i++){
-      var dx = perfil[i].x - perfil[i-1].x, dy = perfil[i].y - perfil[i-1].y;
-      comprimentos.push(comprimentos[i-1] + Math.sqrt(dx*dx + dy*dy));
-    }
-    var COMPRIMENTO_TOTAL = comprimentos[comprimentos.length - 1];
-    var V_INICIO = comprimentos[IDX_PAREDE_INICIO] / COMPRIMENTO_TOTAL;
-    var V_FIM = comprimentos[IDX_PAREDE_FIM] / COMPRIMENTO_TOTAL;
-    var ALTURA_PAREDE_MUNDO = perfil[IDX_PAREDE_FIM].y - perfil[IDX_PAREDE_INICIO].y;
     var CIRCUNFERENCIA_MUNDO = 2 * Math.PI * RAIO;
-    var PROPORCAO_AREA_IMPRESSAO = CIRCUNFERENCIA_MUNDO / ALTURA_PAREDE_MUNDO;
+    var PROPORCAO_AREA_IMPRESSAO = CIRCUNFERENCIA_MUNDO / ALTURA_PAREDE;
 
-    /* ---- textura: só a faixa da parede recebe foto/estampa; o resto
-       (base, aro, parede interna) é sempre cor sólida da cerâmica ---- */
+    /* ---- textura: cobre só a parede externa (a própria geometria da
+       parede é uma peça isolada, então não tem como vazar pra base,
+       aro ou parede interna — essas peças nem têm mapa de textura) ---- */
     var TEX_W = 1024;
-    var TEX_H = Math.round((TEX_W / PROPORCAO_AREA_IMPRESSAO) / (V_FIM - V_INICIO));
-    var PIX_PAREDE_Y0 = Math.round(V_INICIO * TEX_H);
-    var PIX_PAREDE_Y1 = Math.round(V_FIM * TEX_H);
-    var PIX_PAREDE_H = PIX_PAREDE_Y1 - PIX_PAREDE_Y0;
+    var TEX_H = Math.round(TEX_W / PROPORCAO_AREA_IMPRESSAO);
 
     var texCanvas = document.createElement("canvas");
     texCanvas.width = TEX_W; texCanvas.height = TEX_H;
@@ -1201,31 +1188,24 @@ p{margin:0}
     }
 
     function desenharTextura(){
-      // base inteira: cor sólida da cerâmica (cobre base, aro e parede interna também)
-      tctx.fillStyle = cor;
-      tctx.fillRect(0, 0, TEX_W, TEX_H);
-
-      // só a faixa da parede externa recebe foto ou o placeholder — nunca o resto
-      tctx.save();
-      tctx.beginPath();
-      tctx.rect(0, PIX_PAREDE_Y0, TEX_W, PIX_PAREDE_H);
-      tctx.clip();
-
       if(temFoto && img){
-        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, PIX_PAREDE_Y0, TEX_W, PIX_PAREDE_H);
+        tctx.clearRect(0, 0, TEX_W, TEX_H);
+        tctx.drawImage(img, recorte.x, recorte.y, recorte.w, recorte.h, 0, 0, TEX_W, TEX_H);
       } else {
+        tctx.fillStyle = cor;
+        tctx.fillRect(0, 0, TEX_W, TEX_H);
         tctx.save();
         tctx.textAlign = "center";
         tctx.fillStyle = "#C86A8C";
-        tctx.font = "800 " + Math.round(PIX_PAREDE_H * .16) + "px Nunito, sans-serif";
-        tctx.fillText("SUA FOTO", TEX_W / 2, PIX_PAREDE_Y0 + PIX_PAREDE_H * .38);
-        tctx.font = "700 " + Math.round(PIX_PAREDE_H * .095) + "px Nunito, sans-serif";
-        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, PIX_PAREDE_Y0 + PIX_PAREDE_H * .5);
+        tctx.font = "800 " + Math.round(TEX_H * .16) + "px Nunito, sans-serif";
+        tctx.fillText("SUA FOTO", TEX_W / 2, TEX_H * .38);
+        tctx.font = "700 " + Math.round(TEX_H * .095) + "px Nunito, sans-serif";
+        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, TEX_H * .5);
         tctx.restore();
       }
 
-      var faixaW = TEX_W * .42, faixaH = PIX_PAREDE_H * .34;
-      var faixaX = TEX_W / 2 - faixaW / 2, faixaY = PIX_PAREDE_Y0 + PIX_PAREDE_H * .62;
+      var faixaW = TEX_W * .42, faixaH = TEX_H * .34;
+      var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
       tctx.save();
       caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
       tctx.fillStyle = "rgba(255,255,255,.88)";
@@ -1244,8 +1224,6 @@ p{margin:0}
         });
       }
       tctx.restore();
-
-      tctx.restore(); // fecha o clip da faixa da parede
 
       if(textura) textura.needsUpdate = true;
     }
@@ -1286,16 +1264,44 @@ p{margin:0}
     textura.anisotropy = renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1;
 
     var materialCorpo = new THREE.MeshStandardMaterial({map: textura, roughness: .4, metalness: 0});
-    var pontosLathe = perfil.map(function(p){ return new THREE.Vector2(p.x, p.y); });
-    var corpo = new THREE.Mesh(new THREE.LatheGeometry(pontosLathe, 72), materialCorpo);
+    var corpo = new THREE.Mesh(
+      new THREE.CylinderGeometry(RAIO, RAIO, ALTURA_PAREDE, 72, 1, true),
+      materialCorpo
+    );
     grupo.add(corpo);
+
+    // peças sólidas da cerâmica (sem textura): aro da boca, parede interna,
+    // fundo interno e base — nenhuma delas pode receber a estampa
+    var materialCeramica = new THREE.MeshStandardMaterial({color: cor, roughness: .42, metalness: 0});
+
+    var aroTopo = new THREE.Mesh(new THREE.RingGeometry(RAIO - PAREDE, RAIO, 72), materialCeramica);
+    aroTopo.rotation.x = -Math.PI / 2;
+    aroTopo.position.y = Y_TOPO;
+    grupo.add(aroTopo);
+
+    var paredeInterna = new THREE.Mesh(
+      new THREE.CylinderGeometry(RAIO - PAREDE, RAIO - PAREDE, ALTURA_INTERNA, 72, 1, true),
+      materialCeramica
+    );
+    paredeInterna.position.y = Y_TOPO - ALTURA_INTERNA / 2;
+    grupo.add(paredeInterna);
+
+    var fundoInterno = new THREE.Mesh(new THREE.CircleGeometry(RAIO - PAREDE, 72), materialCeramica);
+    fundoInterno.rotation.x = -Math.PI / 2;
+    fundoInterno.position.y = Y_FUNDO_INTERNO;
+    grupo.add(fundoInterno);
+
+    var baseExterna = new THREE.Mesh(new THREE.CircleGeometry(RAIO, 72), materialCeramica);
+    baseExterna.rotation.x = Math.PI / 2;
+    baseExterna.position.y = Y_BASE;
+    grupo.add(baseExterna);
 
     var materialCabo = new THREE.MeshStandardMaterial({color: cor, roughness: .34, metalness: 0});
     var curvaCabo = new THREE.CubicBezierCurve3(
-      new THREE.Vector3(RAIO * .58, .3, 0),
-      new THREE.Vector3(RAIO * 1.84, .33, 0),
-      new THREE.Vector3(RAIO * 1.84, -.33, 0),
-      new THREE.Vector3(RAIO * .58, -.3, 0)
+      new THREE.Vector3(RAIO * .58, Y_TOPO * .66, 0),
+      new THREE.Vector3(RAIO * 1.84, Y_TOPO * .74, 0),
+      new THREE.Vector3(RAIO * 1.84, -Y_TOPO * .74, 0),
+      new THREE.Vector3(RAIO * .58, -Y_TOPO * .66, 0)
     );
     var cabo = new THREE.Mesh(new THREE.TubeGeometry(curvaCabo, 48, .048, 14, false), materialCabo);
     grupo.add(cabo);
@@ -1340,6 +1346,7 @@ p{margin:0}
       setCor: function(novaCor, novoStroke){
         cor = novaCor; stroke = novoStroke;
         materialCabo.color.set(cor);
+        materialCeramica.color.set(cor);
         desenharTextura();
         renderizar();
       },
