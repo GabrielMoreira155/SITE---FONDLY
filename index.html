@@ -1220,16 +1220,6 @@ p{margin:0}
       return w;
     }
 
-    function caminhoArredondado(x, y, w, h, r){
-      tctx.beginPath();
-      tctx.moveTo(x + r, y);
-      tctx.arcTo(x + w, y, x + w, y + h, r);
-      tctx.arcTo(x + w, y + h, x, y + h, r);
-      tctx.arcTo(x, y + h, x, y, r);
-      tctx.arcTo(x, y, x + w, y, r);
-      tctx.closePath();
-    }
-
     /* Lê a cor média já pintada no canvas (foto ou cor da cerâmica) numa
        região, pra tarja da frase poder acompanhar o que está por trás dela
        em vez de ficar sempre branca. */
@@ -1283,28 +1273,19 @@ p{margin:0}
       var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
 
-      /* A tarja acompanha a cor do que está atrás dela (foto ou cerâmica) em
-         vez de ficar sempre branca, e o texto troca entre claro/escuro
-         automaticamente pra sempre destacar em cima dessa cor. */
+      /* Sem tarja/caixa atrás da frase — só o texto em cima da foto/cor da
+         caneca. O texto troca entre claro/escuro automaticamente (e ganha
+         uma sombra leve) pra continuar legível em qualquer fundo. */
       var mediaFundo = amostrarCorMedia(faixaX, faixaY, faixaW, faixaH);
-      var corFaixa = "rgb(" + Math.round(mediaFundo.r) + "," + Math.round(mediaFundo.g) + "," + Math.round(mediaFundo.b) + ")";
       var texteClaro = luminancia(mediaFundo.r, mediaFundo.g, mediaFundo.b) <= .52;
       var corTexto = texteClaro ? "#FFFFFF" : "#2A1830";
-      var corPlaceholder = texteClaro ? "rgba(255,255,255,.55)" : "rgba(42,24,48,.42)";
-      var corContorno = texteClaro ? "rgba(255,255,255,.32)" : "rgba(0,0,0,.16)";
+      var corPlaceholder = texteClaro ? "rgba(255,255,255,.65)" : "rgba(42,24,48,.55)";
+      var corSombraTexto = texteClaro ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.45)";
 
       tctx.save();
-      tctx.shadowColor = "rgba(0,0,0,.24)";
-      tctx.shadowBlur = faixaH * .18;
-      tctx.shadowOffsetY = faixaH * .05;
-      caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
-      tctx.fillStyle = corFaixa;
-      tctx.fill();
-      tctx.shadowColor = "transparent";
-      tctx.lineWidth = Math.max(2, faixaH * .03);
-      tctx.strokeStyle = corContorno;
-      tctx.stroke();
-
+      tctx.shadowColor = corSombraTexto;
+      tctx.shadowBlur = faixaH * .14;
+      tctx.shadowOffsetY = faixaH * .02;
       tctx.textAlign = "center";
       var tamFonte = Math.round(faixaH * .46);
       tctx.font = tamFonte + "px Caveat, cursive";
