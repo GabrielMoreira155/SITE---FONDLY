@@ -295,6 +295,21 @@ p{margin:0}
   padding:13px 15px;border:1.5px solid var(--linha);border-radius:10px;background:var(--branco);width:100%;
 }
 .campo input:focus,.campo select:focus{border-color:var(--rosa);outline:none}
+.segmentado{display:flex;gap:8px;flex-wrap:wrap}
+.seg-opcao{
+  flex:1 1 0;min-width:150px;font-family:var(--corpo);font-size:.87rem;color:var(--tinta-suave);
+  padding:11px 12px;border:1.5px solid var(--linha);border-radius:10px;background:var(--branco);
+  cursor:pointer;text-align:center;line-height:1.3;
+  transition:border-color .2s ease,color .2s ease,background .2s ease,transform .15s ease;
+}
+.seg-opcao:hover{border-color:var(--rosa)}
+.seg-opcao:active{transform:scale(.98)}
+.seg-opcao .seg-obs{display:block;font-size:.75rem;color:var(--tinta-fraca);font-weight:400}
+.seg-opcao[aria-pressed="true"]{
+  border-color:var(--rosa-escuro);color:var(--tinta-titulo);font-weight:700;
+  background:color-mix(in srgb, var(--rosa) 14%, var(--branco));
+}
+.seg-opcao[aria-pressed="true"] .seg-obs{color:var(--rosa-escuro)}
 .dupla{display:grid;grid-template-columns:1.4fr .6fr;gap:14px}
 .foto-area{
   position:relative;
@@ -594,6 +609,14 @@ p{margin:0}
             <div class="campo">
               <label for="qtd">Quantidade</label>
               <input type="number" id="qtd" value="1" min="1" max="99">
+            </div>
+          </div>
+
+          <div class="campo" id="campo-estampa">
+            <label>Estampa na caneca</label>
+            <div class="segmentado" id="estampa" role="radiogroup" aria-label="Estampa na caneca">
+              <button type="button" class="seg-opcao" data-estampa="completa" aria-pressed="true">Caneca toda</button>
+              <button type="button" class="seg-opcao" data-estampa="lateral" aria-pressed="false">Só um lado <span class="seg-obs">(~8,5cm, decalque)</span></button>
             </div>
           </div>
 
@@ -1043,7 +1066,7 @@ p{margin:0}
     }
   };
 
-  var estado = {produto:"caneca", cor:"branca", frase:"", ocasiao:"Aniversário", qtd:1, foto:null, fotoNome:""};
+  var estado = {produto:"caneca", cor:"branca", frase:"", ocasiao:"Aniversário", qtd:1, foto:null, fotoNome:"", estampa:"completa"};
 
   /* Área de impressão de cada produto: fonte única de verdade.
      x/y/width/height são coordenadas dentro do viewBox 400x330 de cada SVG.
@@ -1110,7 +1133,8 @@ p{margin:0}
 
   var elFrase = $("#frase"), elOcasiao = $("#ocasiao"), elQtd = $("#qtd"),
       elFoto = $("#foto"), elFotoNome = $("#foto-nome"), elValor = $("#valor"),
-      elObsItem = $("#obs-item"), elCores = $("#cores"), elFotoArea = $("#foto-area");
+      elObsItem = $("#obs-item"), elCores = $("#cores"), elFotoArea = $("#foto-area"),
+      elCampoEstampa = $("#campo-estampa");
 
   /* ---------- caneca em 3D de verdade (Three.js/WebGL) ----------
      O corpo é montado com peças simples separadas (não uma única
@@ -1163,6 +1187,16 @@ p{margin:0}
     var img = null;
     var srcAtual = "";
     var encaixe = {reps:1, tileW:0, tileH:0};
+    var modoEstampa = "completa"; // "completa" (dá a volta) ou "lateral" (decalque só de um lado)
+
+    /* Referência pra estimar, em cm, quanto da circunferência da caneca
+       real uma faixa de estampa "só de um lado" ocupa (~8,5cm, medida
+       típica de decalque lateral que a gráfica usa). É só uma proporção
+       pra dar uma ideia visual — a arte final é sempre refeita à parte. */
+    var LARGURA_LATERAL_CM = 8.5;
+    var DIAMETRO_CANECA_CM = 8.2;
+    var CIRCUNFERENCIA_CANECA_CM = Math.PI * DIAMETRO_CANECA_CM;
+    var PROP_LARGURA_LATERAL = Math.min(.92, LARGURA_LATERAL_CM / CIRCUNFERENCIA_CANECA_CM);
 
     /* A foto do cliente nunca é cortada nem esticada — e ainda assim
        precisa cobrir a caneca inteira. As três coisas juntas só são
@@ -1178,6 +1212,19 @@ p{margin:0}
       var tileW = TEX_W / reps;
       var tileH = tileW / propImagem;
       return {reps:reps, tileW:tileW, tileH:tileH};
+    }
+
+    /* Decalque de um lado só: a imagem inteira cabe dentro de uma faixa de
+       largura fixa (proporcional aos ~8,5cm), sem cortar e sem esticar —
+       aqui não tem "caneca inteira" pra cobrir, então o encaixe é do tipo
+       "conter", com o resto da caneca só na cor da cerâmica. */
+    function desenharFotoLateral(imagem, areaX, areaW, areaY, areaH){
+      var propImagem = imagem.naturalWidth / imagem.naturalHeight;
+      var w = areaW, h = w / propImagem;
+      if(h > areaH){ h = areaH; w = h * propImagem; }
+      var x = areaX + (areaW - w) / 2;
+      var y = areaY + (areaH - h) / 2;
+      tctx.drawImage(imagem, 0, 0, imagem.naturalWidth, imagem.naturalHeight, x, y, w, h);
     }
 
     function caminhoArredondado(x, y, w, h, r){
@@ -1215,23 +1262,35 @@ p{margin:0}
       tctx.fillStyle = cor;
       tctx.fillRect(0, 0, TEX_W, TEX_H);
 
+      var lateral = modoEstampa === "lateral";
+      var areaFotoW = lateral ? TEX_W * PROP_LARGURA_LATERAL : TEX_W;
+      var areaFotoX = lateral ? (TEX_W - areaFotoW) / 2 : 0;
+      var areaFotoH = lateral ? TEX_H * .84 : TEX_H;
+      var areaFotoY = lateral ? (TEX_H - areaFotoH) / 2 : 0;
+
       if(temFoto && img){
-        var yTile = (TEX_H - encaixe.tileH) / 2;
-        for(var i = 0; i < encaixe.reps; i++){
-          tctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, i * encaixe.tileW, yTile, encaixe.tileW, encaixe.tileH);
+        if(lateral){
+          desenharFotoLateral(img, areaFotoX, areaFotoW, areaFotoY, areaFotoH);
+        } else {
+          var yTile = (TEX_H - encaixe.tileH) / 2;
+          for(var i = 0; i < encaixe.reps; i++){
+            tctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, i * encaixe.tileW, yTile, encaixe.tileW, encaixe.tileH);
+          }
         }
       } else {
         tctx.save();
         tctx.textAlign = "center";
+        var tamTitulo = Math.min(TEX_H * .16, areaFotoW * .18);
+        var tamSub = Math.min(TEX_H * .095, areaFotoW * .105);
         tctx.fillStyle = "#C86A8C";
-        tctx.font = "800 " + Math.round(TEX_H * .16) + "px Nunito, sans-serif";
+        tctx.font = "800 " + Math.round(tamTitulo) + "px Nunito, sans-serif";
         tctx.fillText("SUA FOTO", TEX_W / 2, TEX_H * .38);
-        tctx.font = "700 " + Math.round(TEX_H * .095) + "px Nunito, sans-serif";
-        tctx.fillText("vira a arte da caneca inteira", TEX_W / 2, TEX_H * .5);
+        tctx.font = "700 " + Math.round(tamSub) + "px Nunito, sans-serif";
+        tctx.fillText(lateral ? "vira a arte desse lado" : "vira a arte da caneca inteira", TEX_W / 2, TEX_H * .5);
         tctx.restore();
       }
 
-      var larguraDisponivel = (temFoto && img) ? encaixe.tileW : TEX_W;
+      var larguraDisponivel = lateral ? areaFotoW : ((temFoto && img) ? encaixe.tileW : TEX_W);
       var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
 
@@ -1402,6 +1461,11 @@ p{margin:0}
         desenharTextura();
         renderizar();
       },
+      setEstampa: function(modo){
+        modoEstampa = modo === "lateral" ? "lateral" : "completa";
+        desenharTextura();
+        renderizar();
+      },
       setFoto: function(url){
         temFoto = !!url;
         if(!url){ img = null; srcAtual = ""; desenharTextura(); renderizar(); return; }
@@ -1511,8 +1575,14 @@ p{margin:0}
     if(estado.produto === "caneca" && Caneca3D){
       Caneca3D.setCor(cor.fill, cor.stroke);
       Caneca3D.setLegenda(quebrar(estado.frase, prod.maxChars));
+      Caneca3D.setEstampa(estado.estampa);
       Caneca3D.setFoto(estado.foto);
     }
+
+    if(elCampoEstampa) elCampoEstampa.hidden = estado.produto !== "caneca";
+    $$("#estampa .seg-opcao").forEach(function(b){
+      b.setAttribute("aria-pressed", b.dataset.estampa === estado.estampa ? "true" : "false");
+    });
 
     Object.keys(CONFIG_PERSONALIZACAO).forEach(function(p){
       if(!CONFIG_PERSONALIZACAO[p].permiteFoto) return;
@@ -1573,6 +1643,10 @@ p{margin:0}
     });
   });
 
+  $$("#estampa .seg-opcao").forEach(function(b){
+    b.addEventListener("click", function(){ estado.estampa = b.dataset.estampa; render(); });
+  });
+
   elFrase.addEventListener("input", function(){ estado.frase = elFrase.value; render(); });
   elOcasiao.addEventListener("change", function(){ estado.ocasiao = elOcasiao.value; });
   elQtd.addEventListener("input", function(){
@@ -1622,6 +1696,7 @@ p{margin:0}
         "\nQuantidade: " + estado.qtd +
         "\nOcasião: " + estado.ocasiao +
         "\nFrase: " + (estado.frase ? "\"" + estado.frase + "\"" : "ainda vou decidir") +
+        (estado.produto === "caneca" ? "\nEstampa: " + (estado.estampa === "lateral" ? "só de um lado (decalque, ~8,5cm)" : "caneca toda") : "") +
         "\nValor estimado no site: " + (cor.preco == null ? "a combinar" : moeda(cor.preco * estado.qtd)) +
         "\n\nJá mando a foto aqui na conversa.";
     }
