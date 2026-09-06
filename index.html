@@ -1162,37 +1162,22 @@ p{margin:0}
     var temFoto = false;
     var img = null;
     var srcAtual = "";
-    var encaixe = {sx:0, sy:0, sw:0, sh:0, x:0, y:0, w:0, h:0};
+    var encaixe = {reps:1, tileW:0, tileH:0};
 
-    /* Moldura de proporção fixa (retrato 4:5) — como uma moldura de
-       fotografia de verdade: a foto do cliente é recortada (nunca
-       esticada) pra preencher esse quadro por completo, cortando só o
-       excesso das bordas. Isso evita os dois problemas extremos:
-       recortar pra a proporção larguíssima da caneca inteira (que
-       descartava quase tudo de uma foto normal de retrato) e "encaixar"
-       a foto inteira sem cortar (que deixava uma tira fina cercada de
-       cor lisa). O quadro sempre usa a altura toda da parede e uma
-       largura fixa e proporcional a ela, então toda foto — retrato,
-       paisagem ou quadrada — aparece com um tamanho generoso e
-       consistente, só variando o quanto é cortado das bordas. */
-    var PROPORCAO_QUADRO = .82;
-
+    /* A foto do cliente nunca é cortada nem esticada — e ainda assim
+       precisa cobrir a caneca inteira. As três coisas juntas só são
+       possíveis de um jeito: repetir a foto inteira lado a lado quantas
+       vezes forem necessárias, cada repetição no tamanho certo (mantendo
+       a proporção original da imagem). Uma foto bem quadrada/larga pode
+       repetir só 1 ou 2 vezes; uma bem estreita repete mais vezes, cada
+       cópia menor — mas sempre a imagem completa, nunca deformada. */
     function calcularEncaixe(imagem){
       var propImagem = imagem.naturalWidth / imagem.naturalHeight;
-      var sx, sy, sw, sh;
-      if(propImagem > PROPORCAO_QUADRO){
-        sh = imagem.naturalHeight;
-        sw = sh * PROPORCAO_QUADRO;
-        sx = (imagem.naturalWidth - sw) / 2;
-        sy = 0;
-      } else {
-        sw = imagem.naturalWidth;
-        sh = sw / PROPORCAO_QUADRO;
-        sx = 0;
-        sy = (imagem.naturalHeight - sh) / 2;
-      }
-      var destH = TEX_H, destW = TEX_H * PROPORCAO_QUADRO;
-      return {sx:sx, sy:sy, sw:sw, sh:sh, x:(TEX_W - destW) / 2, y:0, w:destW, h:destH};
+      var repsIdeal = TEX_W / (TEX_H * propImagem);
+      var reps = Math.max(1, Math.ceil(repsIdeal));
+      var tileW = TEX_W / reps;
+      var tileH = tileW / propImagem;
+      return {reps:reps, tileW:tileW, tileH:tileH};
     }
 
     function caminhoArredondado(x, y, w, h, r){
@@ -1210,7 +1195,10 @@ p{margin:0}
       tctx.fillRect(0, 0, TEX_W, TEX_H);
 
       if(temFoto && img){
-        tctx.drawImage(img, encaixe.sx, encaixe.sy, encaixe.sw, encaixe.sh, encaixe.x, encaixe.y, encaixe.w, encaixe.h);
+        var yTile = (TEX_H - encaixe.tileH) / 2;
+        for(var i = 0; i < encaixe.reps; i++){
+          tctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, i * encaixe.tileW, yTile, encaixe.tileW, encaixe.tileH);
+        }
       } else {
         tctx.save();
         tctx.textAlign = "center";
@@ -1222,7 +1210,7 @@ p{margin:0}
         tctx.restore();
       }
 
-      var larguraDisponivel = (temFoto && img) ? encaixe.w : TEX_W;
+      var larguraDisponivel = (temFoto && img) ? encaixe.tileW : TEX_W;
       var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
       tctx.save();
