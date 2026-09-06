@@ -1190,6 +1190,27 @@ p{margin:0}
       tctx.closePath();
     }
 
+    /* Lê a cor média já pintada no canvas (foto ou cor da cerâmica) numa
+       região, pra tarja da frase poder acompanhar o que está por trás dela
+       em vez de ficar sempre branca. */
+    function amostrarCorMedia(x, y, w, h){
+      x = Math.max(0, Math.floor(x)); y = Math.max(0, Math.floor(y));
+      w = Math.min(TEX_W - x, Math.ceil(w)); h = Math.min(TEX_H - y, Math.ceil(h));
+      if(w <= 0 || h <= 0) return {r:255, g:255, b:255};
+      var dados = tctx.getImageData(x, y, w, h).data;
+      var r = 0, g = 0, b = 0, n = 0;
+      var passo = 16; // 1 a cada 4 pixels (4 canais), suficiente pra uma média estável
+      for(var i = 0; i < dados.length; i += passo){
+        r += dados[i]; g += dados[i + 1]; b += dados[i + 2]; n++;
+      }
+      if(!n) return {r:255, g:255, b:255};
+      return {r: r / n, g: g / n, b: b / n};
+    }
+
+    function luminancia(r, g, b){
+      return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    }
+
     function desenharTextura(){
       tctx.fillStyle = cor;
       tctx.fillRect(0, 0, TEX_W, TEX_H);
@@ -1213,18 +1234,37 @@ p{margin:0}
       var larguraDisponivel = (temFoto && img) ? encaixe.tileW : TEX_W;
       var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
+
+      /* A tarja acompanha a cor do que está atrás dela (foto ou cerâmica) em
+         vez de ficar sempre branca, e o texto troca entre claro/escuro
+         automaticamente pra sempre destacar em cima dessa cor. */
+      var mediaFundo = amostrarCorMedia(faixaX, faixaY, faixaW, faixaH);
+      var corFaixa = "rgb(" + Math.round(mediaFundo.r) + "," + Math.round(mediaFundo.g) + "," + Math.round(mediaFundo.b) + ")";
+      var texteClaro = luminancia(mediaFundo.r, mediaFundo.g, mediaFundo.b) <= .52;
+      var corTexto = texteClaro ? "#FFFFFF" : "#2A1830";
+      var corPlaceholder = texteClaro ? "rgba(255,255,255,.55)" : "rgba(42,24,48,.42)";
+      var corContorno = texteClaro ? "rgba(255,255,255,.32)" : "rgba(0,0,0,.16)";
+
       tctx.save();
+      tctx.shadowColor = "rgba(0,0,0,.24)";
+      tctx.shadowBlur = faixaH * .18;
+      tctx.shadowOffsetY = faixaH * .05;
       caminhoArredondado(faixaX, faixaY, faixaW, faixaH, faixaH * .4);
-      tctx.fillStyle = "rgba(255,255,255,.88)";
+      tctx.fillStyle = corFaixa;
       tctx.fill();
+      tctx.shadowColor = "transparent";
+      tctx.lineWidth = Math.max(2, faixaH * .03);
+      tctx.strokeStyle = corContorno;
+      tctx.stroke();
+
       tctx.textAlign = "center";
       var tamFonte = Math.round(faixaH * .46);
       tctx.font = tamFonte + "px Caveat, cursive";
       if(linhasLegenda.length === 0){
-        tctx.fillStyle = "#C7ADB2";
+        tctx.fillStyle = corPlaceholder;
         tctx.fillText("sua frase aqui", TEX_W / 2, faixaY + faixaH * .64);
       } else {
-        tctx.fillStyle = "#3A2148";
+        tctx.fillStyle = corTexto;
         var baseY = linhasLegenda.length === 2 ? faixaY + faixaH * .4 : faixaY + faixaH * .64;
         linhasLegenda.forEach(function(linha, i){
           tctx.fillText(linha, TEX_W / 2, baseY + i * tamFonte);
