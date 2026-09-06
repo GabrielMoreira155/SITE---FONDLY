@@ -1165,14 +1165,21 @@ p{margin:0}
     var tomFoto = "#FFFFFF"; // cor média da foto inteira, usada como "fundo" ao redor da estampa
 
     /* Referência pra estimar, em cm, quanto da circunferência da caneca
-       real a estampa principal ocupa (~8,5cm, medida típica de decalque
-       que a gráfica usa). É só uma proporção pra dar uma ideia visual —
-       a arte final é sempre refeita à parte. A estampa NUNCA se repete:
-       ela aparece uma única vez, centralizada na frente. */
+       real a estampa principal ocupa quando ainda não tem foto (~8,5cm,
+       medida típica de decalque que a gráfica usa) — só usada pra
+       dimensionar o texto de exemplo "SUA FOTO". Com foto, a largura real
+       da estampa passa a depender da proporção da própria imagem (ver
+       desenharFotoCentralizada) — a estampa NUNCA se repete: ela aparece
+       uma única vez, centralizada na frente. */
     var LARGURA_ESTAMPA_CM = 8.5;
     var DIAMETRO_CANECA_CM = 8.2;
     var CIRCUNFERENCIA_CANECA_CM = Math.PI * DIAMETRO_CANECA_CM;
     var PROP_LARGURA_ESTAMPA = Math.min(.92, LARGURA_ESTAMPA_CM / CIRCUNFERENCIA_CANECA_CM);
+
+    /* Limite de segurança pra largura da estampa: mesmo uma foto bem
+       panorâmica não deve tomar 100% da volta da caneca — sobra sempre um
+       pouco de "wallpaper" (tonalidade da foto) na emenda de trás. */
+    var LARGURA_MAXIMA_ESTAMPA = TEX_W * .94;
 
     /* Cor média da foto inteira (não só da faixa), pra poder preencher o
        resto da caneca com a tonalidade geral da imagem em vez de deixar
@@ -1194,15 +1201,23 @@ p{margin:0}
     }
 
     /* A estampa principal nunca se repete: aparece uma única vez,
-       centralizada, ocupando a foto inteira sem cortar e sem esticar
-       (encaixe do tipo "conter") dentro de uma faixa de largura fixa. */
-    function desenharFotoCentralizada(imagem, areaX, areaW, areaY, areaH){
+       centralizada, ocupando a foto inteira sem cortar e sem esticar.
+       Prioriza preencher a altura toda da área de impressão (até onde a
+       "parede" da caneca vai) — uma foto retangular/paisagem fica larga
+       o quanto for preciso pra cobrir de cima a baixo, em vez de ficar
+       pequena e sobrar cor lisa em cima e embaixo. Só uma foto bem
+       quadrada ou em pé (retrato) acaba com a largura menor que a altura
+       disponível, e aí sim é ela quem limita o tamanho. Retorna a largura
+       final usada, pra a tarja da frase poder se ajustar ao tamanho real
+       da estampa em vez de um valor fixo. */
+    function desenharFotoCentralizada(imagem, areaY, areaH){
       var propImagem = imagem.naturalWidth / imagem.naturalHeight;
-      var w = areaW, h = w / propImagem;
-      if(h > areaH){ h = areaH; w = h * propImagem; }
-      var x = areaX + (areaW - w) / 2;
+      var h = areaH, w = h * propImagem;
+      if(w > LARGURA_MAXIMA_ESTAMPA){ w = LARGURA_MAXIMA_ESTAMPA; h = w / propImagem; }
+      var x = TEX_W / 2 - w / 2;
       var y = areaY + (areaH - h) / 2;
       tctx.drawImage(imagem, 0, 0, imagem.naturalWidth, imagem.naturalHeight, x, y, w, h);
+      return w;
     }
 
     function caminhoArredondado(x, y, w, h, r){
@@ -1245,18 +1260,19 @@ p{margin:0}
       tctx.fillStyle = corFundo;
       tctx.fillRect(0, 0, TEX_W, TEX_H);
 
-      var areaFotoW = TEX_W * PROP_LARGURA_ESTAMPA;
-      var areaFotoX = (TEX_W - areaFotoW) / 2;
       var areaFotoH = TEX_H * .84;
       var areaFotoY = (TEX_H - areaFotoH) / 2;
+      var larguraDisponivel;
 
       if(temFoto && img){
-        desenharFotoCentralizada(img, areaFotoX, areaFotoW, areaFotoY, areaFotoH);
+        larguraDisponivel = desenharFotoCentralizada(img, areaFotoY, areaFotoH);
       } else {
+        larguraDisponivel = TEX_W;
+        var larguraTexto = TEX_W * PROP_LARGURA_ESTAMPA;
         tctx.save();
         tctx.textAlign = "center";
-        var tamTitulo = Math.min(TEX_H * .16, areaFotoW * .18);
-        var tamSub = Math.min(TEX_H * .095, areaFotoW * .105);
+        var tamTitulo = Math.min(TEX_H * .16, larguraTexto * .18);
+        var tamSub = Math.min(TEX_H * .095, larguraTexto * .105);
         tctx.fillStyle = "#C86A8C";
         tctx.font = "800 " + Math.round(tamTitulo) + "px Nunito, sans-serif";
         tctx.fillText("SUA FOTO", TEX_W / 2, TEX_H * .38);
@@ -1264,8 +1280,6 @@ p{margin:0}
         tctx.fillText("vira a arte centralizada", TEX_W / 2, TEX_H * .5);
         tctx.restore();
       }
-
-      var larguraDisponivel = (temFoto && img) ? areaFotoW : TEX_W;
       var faixaW = Math.min(TEX_W * .42, larguraDisponivel * .82), faixaH = TEX_H * .34;
       var faixaX = TEX_W / 2 - faixaW / 2, faixaY = TEX_H * .62;
 
