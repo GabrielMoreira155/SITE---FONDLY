@@ -372,9 +372,9 @@ p{margin:0}
 
 /* passos */
 .passos{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;counter-reset:p}
-.passo{position:relative;padding-top:50px}
+.passo{position:relative;padding-top:54px}
 .passo::after{
-  content:"";position:absolute;top:26px;left:0;height:2px;width:100%;z-index:0;
+  content:"";position:absolute;top:22px;left:0;height:2px;width:100%;z-index:0;
   background:var(--rosa);transform:scaleX(0);transform-origin:left;
   transition:transform .7s cubic-bezier(.3,.7,.3,1) .15s;
 }
@@ -384,7 +384,8 @@ p{margin:0}
 .passos .passo:nth-child(4)::after{transition-delay:.39s}
 .passo::before{
   counter-increment:p;content:counter(p,decimal-leading-zero);
-  position:absolute;top:-8px;left:0;z-index:1;
+  position:absolute;top:-6px;left:0;z-index:1;line-height:1;
+  background:color-mix(in srgb, var(--branco) 50%, var(--porcelana));padding-right:14px;
   font-family:var(--display);font-style:italic;font-size:2.1rem;font-weight:600;
   color:color-mix(in srgb, var(--rosa) 55%, var(--linha));
 }
@@ -393,15 +394,7 @@ p{margin:0}
 
 /* ocasioes */
 .ocasioes{background:var(--porcelana-2)}
-.ocasioes-fotos{display:flex;gap:18px;margin-top:36px}
-.ocasioes-fotos img{
-  width:112px;height:132px;object-fit:cover;border-radius:4px;flex:0 0 auto;
-  box-shadow:0 18px 28px -18px rgba(var(--sombra),.5);
-}
-.ocasioes-fotos img:nth-child(1){transform:rotate(-3deg)}
-.ocasioes-fotos img:nth-child(2){transform:rotate(2deg);margin-top:16px}
-.ocasioes-fotos img:nth-child(3){transform:rotate(-1.5deg)}
-.fitas{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.fitas{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
 .fita{
   display:inline-block;
   border:1px solid var(--linha);border-radius:999px;background:var(--branco);
@@ -521,7 +514,6 @@ p{margin:0}
   .secao{padding:64px 0}
   .passos{grid-template-columns:1fr}
   .portfolio-grade{column-count:1}
-  .ocasioes-fotos img{width:31%;height:auto;aspect-ratio:5/6}
   .topo .wrap{height:64px;gap:12px}
   .marca .tipo{display:none}
   .dupla{grid-template-columns:1fr}
@@ -942,7 +934,7 @@ p{margin:0}
       <div class="produtos-lista revela">
         <article class="produto-linha">
           <div class="produto-linha-foto">
-            <img src="img-jpg-1-a0c2d151f597.jpg" alt="Caneca personalizada Fondly com foto de uma criança abraçando o Papai Noel" width="818" height="848" loading="lazy">
+            <img src="img-jpg-canecaformatura-6b1ed7342971.jpg" alt="Caneca personalizada Fondly de formatura, com foto no jardim" width="683" height="848" loading="lazy">
           </div>
           <div class="produto-linha-texto">
             <p class="rotulo">Canecas</p>
@@ -1138,12 +1130,7 @@ p{margin:0}
       <div class="secao-cabeca revela">
         <p class="rotulo">Pra quando serve?</p>
         <h2>Tem data marcada ou é só vontade de agradar?</h2>
-        <p>Os dois funcionam. Estes são os pedidos que mais saem por aqui.</p>
-      </div>
-      <div class="ocasioes-fotos">
-        <img src="img-jpg-2-b8613f382bc6.jpg" alt="Camisetas Bride e Team Bride para despedida de solteira" width="862" height="640" loading="lazy">
-        <img src="img-jpg-3-57136e157ff5.jpg" alt="Azulejo personalizado Sim Piririm Kids para festa infantil" width="683" height="822" loading="lazy">
-        <img src="img-jpg-body-88456a7e639a.jpg" alt="Body de bebê personalizado de Páscoa com coelhinho" width="852" height="866" loading="lazy">
+        <p>Os dois funcionam. Essas são as ocasiões que mais saem presentes por aqui.</p>
       </div>
       <div class="fitas revela">
         <span class="fita destaque">Dia das Mães</span>
