@@ -648,6 +648,10 @@ p{margin:0}
             <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L5 6.5l2 3.5 2-1v8A1.5 1.5 0 0010.5 18.5h3A1.5 1.5 0 0015 17V9l2 1 2-3.5L15 4a3 3 0 01-6 0z"/></svg></span>
             Body de Bebê
           </button>
+          <button class="aba" role="tab" aria-selected="false" data-produto="toalhinha">
+            <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6q2-4 4 0"/><rect x="6" y="6" width="12" height="15" rx="3"/></svg></span>
+            Toalhinhas
+          </button>
           <button class="aba" role="tab" aria-selected="false" data-produto="kit">
             <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M4 9h16M12 9v11"/><path d="M8.5 9C7 9 6 7.8 6 6.5S7 4 8.5 4c2 0 3.5 2.5 3.5 5M15.5 9C17 9 18 7.8 18 6.5S17 4 15.5 4c-2 0-3.5 2.5-3.5 5"/></svg></span>
             Kit
@@ -863,6 +867,32 @@ p{margin:0}
           </g>
         </svg>
 
+        <!-- TOALHINHA -->
+        <svg class="produto-svg" id="svg-toalhinha" viewBox="0 0 400 330" role="img" aria-label="Prévia da toalhinha de bebê personalizada" hidden>
+          <defs>
+            <clipPath id="foto-toalhinha"><rect x="140" y="46" width="120" height="190" rx="14"/></clipPath>
+            <linearGradient id="brilho-toalhinha" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".22"/>
+              <stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".12"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="270" rx="85" ry="11" fill="#5C3670" opacity=".1"/>
+          <path d="M186 46q14-22 28 0" fill="none" stroke="#E0CBC6" stroke-width="4" stroke-linecap="round"/>
+          <rect x="140" y="46" width="120" height="190" rx="14" fill="#fff" stroke="#ECD9E7" stroke-width="1.5" class="corpo-produto" data-tipo="fill"/>
+          <g class="impressao">
+            <rect class="area-foto" x="140" y="46" width="120" height="190" rx="14" fill="#F6EAE7"/>
+            <image class="foto-usuario" x="140" y="46" width="120" height="190" preserveAspectRatio="xMidYMid slice" clip-path="url(#foto-toalhinha)" href="" hidden/>
+            <g class="sem-foto">
+              <rect class="area-foto" x="140" y="46" width="120" height="190" rx="14" fill="none" stroke="#E58FAE" stroke-width="1.2" stroke-dasharray="6 6"/>
+              <text x="200" y="132" text-anchor="middle" font-family="Nunito,sans-serif" font-size="11" fill="#C86A8C" letter-spacing="1.2">SUA FOTO</text>
+              <text x="200" y="149" text-anchor="middle" font-family="Nunito,sans-serif" font-size="8" fill="#C86A8C" letter-spacing=".5">vira a arte da toalhinha inteira</text>
+            </g>
+            <rect class="area-foto brilho-foto" x="140" y="46" width="120" height="190" rx="14" fill="url(#brilho-toalhinha)" clip-path="url(#foto-toalhinha)" pointer-events="none"/>
+            <text class="legenda" x="200" y="255" text-anchor="middle" font-family="Caveat,cursive" font-size="15" fill="#5C3670"></text>
+          </g>
+        </svg>
+
         <!-- KIT -->
         <svg class="produto-svg" id="svg-kit" viewBox="0 0 400 330" role="img" aria-label="Prévia do kit presente personalizado" hidden>
           <ellipse cx="200" cy="312" rx="100" ry="11" fill="#5C3670" opacity=".1"/>
@@ -962,6 +992,13 @@ p{margin:0}
           <div class="preco">Sob consulta</div>
           <p>100% algodão, do RN ao 1 ano. Uma lembrancinha fofa pra chá de bebê ou nascimento.</p>
           <button class="escolher" data-ir="body" data-cor="branco">Montar a minha</button>
+        </article>
+
+        <article class="card">
+          <h3>Toalhinha de bebê</h3>
+          <div class="preco">Sob consulta</div>
+          <p>Fralda de boca em algodão macio, com alcinha pra pendurar. Combina lindo com o body.</p>
+          <button class="escolher" data-ir="toalhinha" data-cor="branca">Montar a minha</button>
         </article>
 
         <article class="card">
@@ -1196,6 +1233,15 @@ p{margin:0}
       },
       maxChars:14
     },
+    toalhinha:{
+      nome:"Toalhinha",
+      cores:{
+        branca:{rotulo:"Branca", fill:"#FFFFFF", stroke:"#ECD9E7", preco:null, desc:"Toalhinha de bebê branca"},
+        rosa:{rotulo:"Rosa clara", fill:"#F3C9D8", stroke:"#E58FAE", preco:null, desc:"Toalhinha de bebê rosa clara"},
+        azul:{rotulo:"Azul clara", fill:"#CFE3EF", stroke:"#8FB8D6", preco:null, desc:"Toalhinha de bebê azul clara"}
+      },
+      maxChars:16
+    },
     kit:{
       nome:"Kit Presente",
       cores:{
@@ -1224,6 +1270,7 @@ p{margin:0}
     quebracabeca: { permiteFoto: true,  tipo: "superficie-total" },
     mousepad:     { permiteFoto: true,  tipo: "superficie-total" },
     body:         { permiteFoto: true,  tipo: "estampa" },
+    toalhinha:    { permiteFoto: true,  tipo: "superficie-total" },
     kit:          { permiteFoto: false, tipo: "conjunto" }
   };
 
@@ -1234,7 +1281,8 @@ p{margin:0}
     azulejo:      { x:138, y:74,  width:124, height:72  },
     quebracabeca: { x:122, y:60,  width:156, height:155 },
     mousepad:     { x:55,  y:90,  width:290, height:150 },
-    body:         { x:156, y:100, width:88,  height:68  }
+    body:         { x:156, y:100, width:88,  height:68  },
+    toalhinha:    { x:140, y:46,  width:120, height:190 }
   };
 
   function aplicarAreasImpressao(){
@@ -1689,7 +1737,7 @@ p{margin:0}
     if(!prod.cores[estado.cor]) estado.cor = Object.keys(prod.cores)[0];
     var cor = prod.cores[estado.cor];
 
-    ["caneca","camiseta","almofada","azulejo","quebracabeca","mousepad","body","kit"].forEach(function(p){
+    ["caneca","camiseta","almofada","azulejo","quebracabeca","mousepad","body","toalhinha","kit"].forEach(function(p){
       var el = $("#svg-" + p);
       if(p !== estado.produto){ el.setAttribute("hidden",""); }
       else { el.removeAttribute("hidden"); }
