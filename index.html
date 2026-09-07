@@ -635,6 +635,18 @@ p{margin:0}
             <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="14" rx="2"/><path d="M9 21l3-4 3 4"/></svg></span>
             Azulejo
           </button>
+          <button class="aba" role="tab" aria-selected="false" data-produto="quebracabeca">
+            <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg></span>
+            Quebra-cabeça
+          </button>
+          <button class="aba" role="tab" aria-selected="false" data-produto="mousepad">
+            <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="12" rx="3"/><rect x="13.5" y="9.5" width="6" height="9" rx="3"/><line x1="16.5" y1="9.5" x2="16.5" y2="13"/></svg></span>
+            Mouse Pad
+          </button>
+          <button class="aba" role="tab" aria-selected="false" data-produto="body">
+            <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4L5 6.5l2 3.5 2-1v8A1.5 1.5 0 0010.5 18.5h3A1.5 1.5 0 0015 17V9l2 1 2-3.5L15 4a3 3 0 01-6 0z"/></svg></span>
+            Body de Bebê
+          </button>
           <button class="aba" role="tab" aria-selected="false" data-produto="kit">
             <span class="anel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M4 9h16M12 9v11"/><path d="M8.5 9C7 9 6 7.8 6 6.5S7 4 8.5 4c2 0 3.5 2.5 3.5 5M15.5 9C17 9 18 7.8 18 6.5S17 4 15.5 4c-2 0-3.5 2.5-3.5 5"/></svg></span>
             Kit
@@ -760,6 +772,96 @@ p{margin:0}
           </g>
         </svg>
 
+        <!-- QUEBRA-CABEÇA -->
+        <svg class="produto-svg" id="svg-quebracabeca" viewBox="0 0 400 330" role="img" aria-label="Prévia do quebra-cabeça personalizado" hidden>
+          <defs>
+            <clipPath id="foto-quebracabeca"><rect x="122" y="60" width="156" height="155" rx="4"/></clipPath>
+            <linearGradient id="brilho-quebracabeca" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".22"/>
+              <stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".12"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="278" rx="100" ry="11" fill="#5C3670" opacity=".1"/>
+          <circle cx="200" cy="45" r="14" class="corpo-produto" data-tipo="fill" fill="#fff" stroke="#ECD9E7" stroke-width="1.5"/>
+          <circle cx="295" cy="137.5" r="14" class="corpo-produto" data-tipo="fill" fill="#fff" stroke="#ECD9E7" stroke-width="1.5"/>
+          <circle cx="200" cy="230" r="14" class="corpo-produto" data-tipo="fill" fill="#fff" stroke="#ECD9E7" stroke-width="1.5"/>
+          <circle cx="105" cy="137.5" r="14" class="corpo-produto" data-tipo="fill" fill="#fff" stroke="#ECD9E7" stroke-width="1.5"/>
+          <rect x="105" y="45" width="190" height="185" rx="8" fill="#fff" stroke="#ECD9E7" stroke-width="1.5" class="corpo-produto" data-tipo="fill"/>
+          <g class="impressao">
+            <rect class="area-foto" x="122" y="60" width="156" height="155" rx="4" fill="#F6EAE7"/>
+            <image class="foto-usuario" x="122" y="60" width="156" height="155" preserveAspectRatio="xMidYMid slice" clip-path="url(#foto-quebracabeca)" href="" hidden/>
+            <g class="sem-foto">
+              <rect class="area-foto" x="122" y="60" width="156" height="155" rx="4" fill="none" stroke="#E58FAE" stroke-width="1.2" stroke-dasharray="6 6"/>
+              <text x="200" y="132" text-anchor="middle" font-family="Nunito,sans-serif" font-size="12" fill="#C86A8C" letter-spacing="1.3">SUA FOTO</text>
+              <text x="200" y="150" text-anchor="middle" font-family="Nunito,sans-serif" font-size="8.5" fill="#C86A8C" letter-spacing=".5">vira as peças do quebra-cabeça</text>
+            </g>
+            <rect class="area-foto brilho-foto" x="122" y="60" width="156" height="155" rx="4" fill="url(#brilho-quebracabeca)" clip-path="url(#foto-quebracabeca)" pointer-events="none"/>
+            <path d="M122 137.5h30M278 137.5h-30M200 60v25M200 215v-25" stroke="#fff" stroke-width="1.6" opacity=".55" clip-path="url(#foto-quebracabeca)" pointer-events="none"/>
+            <text class="legenda" x="200" y="255" text-anchor="middle" font-family="Caveat,cursive" font-size="15" fill="#5C3670"></text>
+          </g>
+        </svg>
+
+        <!-- MOUSE PAD -->
+        <svg class="produto-svg" id="svg-mousepad" viewBox="0 0 400 330" role="img" aria-label="Prévia do mouse pad personalizado" hidden>
+          <defs>
+            <clipPath id="foto-mousepad"><rect x="55" y="90" width="290" height="150" rx="16"/></clipPath>
+            <linearGradient id="brilho-mousepad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".2"/>
+              <stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".12"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="262" rx="135" ry="11" fill="#5C3670" opacity=".1"/>
+          <rect x="55" y="90" width="290" height="150" rx="16" fill="#fff" stroke="#ECD9E7" stroke-width="1.5" class="corpo-produto" data-tipo="fill"/>
+          <g class="impressao">
+            <rect class="area-foto" x="55" y="90" width="290" height="150" rx="16" fill="#F6EAE7"/>
+            <image class="foto-usuario" x="55" y="90" width="290" height="150" preserveAspectRatio="xMidYMid slice" clip-path="url(#foto-mousepad)" href="" hidden/>
+            <g class="sem-foto">
+              <rect class="area-foto" x="55" y="90" width="290" height="150" rx="16" fill="none" stroke="#E58FAE" stroke-width="1.2" stroke-dasharray="6 6"/>
+              <text x="185" y="158" text-anchor="middle" font-family="Nunito,sans-serif" font-size="12" fill="#C86A8C" letter-spacing="1.3">SUA FOTO</text>
+              <text x="185" y="176" text-anchor="middle" font-family="Nunito,sans-serif" font-size="8.5" fill="#C86A8C" letter-spacing=".5">vira a arte do mouse pad inteiro</text>
+            </g>
+            <rect class="area-foto brilho-foto" x="55" y="90" width="290" height="150" rx="16" fill="url(#brilho-mousepad)" clip-path="url(#foto-mousepad)" pointer-events="none"/>
+            <g opacity=".92" pointer-events="none" clip-path="url(#foto-mousepad)">
+              <path d="M283 155q0-20 17-20t17 20v40q0 20-17 20t-17-20z" fill="#fff" stroke="#E0CBC6" stroke-width="1.2"/>
+              <line x1="300" y1="135" x2="300" y2="163" stroke="#E0CBC6" stroke-width="1"/>
+              <ellipse cx="300" cy="150" rx="2.6" ry="5.5" fill="#E58FAE"/>
+            </g>
+            <text class="legenda" x="185" y="222" text-anchor="middle" font-family="Caveat,cursive" font-size="15" fill="#5C3670"></text>
+          </g>
+        </svg>
+
+        <!-- BODY DE BEBÊ -->
+        <svg class="produto-svg" id="svg-body" viewBox="0 0 400 330" role="img" aria-label="Prévia do body de bebê personalizado" hidden>
+          <defs>
+            <clipPath id="foto-body"><rect x="156" y="100" width="88" height="68" rx="2"/></clipPath>
+            <linearGradient id="brilho-body" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#fff" stop-opacity=".2"/>
+              <stop offset=".4" stop-color="#fff" stop-opacity="0"/>
+              <stop offset="1" stop-color="#000" stop-opacity=".14"/>
+            </linearGradient>
+          </defs>
+          <ellipse cx="200" cy="272" rx="90" ry="11" fill="#5C3670" opacity=".1"/>
+          <path d="M158 55 L120 70 L82 100 L110 135 L134 118 L134 235 Q134 246 145 246 L255 246 Q266 246 266 235 L266 118 L290 135 L318 100 L280 70 L242 55 C236 79 164 79 158 55 Z"
+                fill="#fff" stroke="#E0CBC6" stroke-width="1.5" class="corpo-produto" data-tipo="fill"/>
+          <path d="M242 55 C236 79 164 79 158 55" fill="none" stroke="#E0CBC6" stroke-width="1.5"/>
+          <circle cx="178" cy="250" r="4" fill="#E58FAE"/>
+          <circle cx="200" cy="252" r="4" fill="#E58FAE"/>
+          <circle cx="222" cy="250" r="4" fill="#E58FAE"/>
+          <g class="impressao">
+            <rect x="150" y="94" width="100" height="80" rx="3" fill="#fff" stroke="#EFE0DC" stroke-width="1"/>
+            <rect class="area-foto" x="156" y="100" width="88" height="68" fill="#F6EAE7"/>
+            <image class="foto-usuario" x="156" y="100" width="88" height="68" preserveAspectRatio="xMidYMid slice" clip-path="url(#foto-body)" href="" hidden/>
+            <g class="sem-foto">
+              <rect class="area-foto" x="156" y="100" width="88" height="68" fill="none" stroke="#E58FAE" stroke-width="1.2" stroke-dasharray="4 4"/>
+              <text x="200" y="138" text-anchor="middle" font-family="Nunito,sans-serif" font-size="9" fill="#C86A8C" letter-spacing="1.2">SUA FOTO</text>
+            </g>
+            <rect class="area-foto brilho-foto" x="156" y="100" width="88" height="68" fill="url(#brilho-body)" clip-path="url(#foto-body)" pointer-events="none"/>
+            <text class="legenda" x="200" y="200" text-anchor="middle" font-family="Caveat,cursive" font-size="14" fill="#5C3670"></text>
+          </g>
+        </svg>
+
         <!-- KIT -->
         <svg class="produto-svg" id="svg-kit" viewBox="0 0 400 330" role="img" aria-label="Prévia do kit presente personalizado" hidden>
           <ellipse cx="200" cy="312" rx="100" ry="11" fill="#5C3670" opacity=".1"/>
@@ -838,6 +940,27 @@ p{margin:0}
           <div class="preco">Sob consulta</div>
           <p>Foto estilo polaroid, código do Spotify ou recado de parabéns. Já vai com o suporte de mesa.</p>
           <button class="escolher" data-ir="azulejo" data-cor="padrao">Montar o meu</button>
+        </article>
+
+        <article class="card">
+          <h3>Quebra-cabeça personalizado</h3>
+          <div class="preco">Sob consulta</div>
+          <p>200 peças com a sua foto inteira. Vem numa caixinha própria, ótimo pra fazer junto.</p>
+          <button class="escolher" data-ir="quebracabeca" data-cor="padrao">Montar o meu</button>
+        </article>
+
+        <article class="card">
+          <h3>Mouse pad personalizado</h3>
+          <div class="preco">Sob consulta</div>
+          <p>30x25cm, base emborrachada antiderrapante. Sua foto cobrindo o mouse pad inteiro.</p>
+          <button class="escolher" data-ir="mousepad" data-cor="padrao">Montar o meu</button>
+        </article>
+
+        <article class="card">
+          <h3>Body de bebê</h3>
+          <div class="preco">Sob consulta</div>
+          <p>100% algodão, do RN ao 1 ano. Uma lembrancinha fofa pra chá de bebê ou nascimento.</p>
+          <button class="escolher" data-ir="body" data-cor="branco">Montar a minha</button>
         </article>
 
         <article class="card">
@@ -1034,6 +1157,29 @@ p{margin:0}
       },
       maxChars:20
     },
+    quebracabeca:{
+      nome:"Quebra-cabeça",
+      cores:{
+        padrao:{rotulo:"200 peças", fill:"#FFFFFF", stroke:"#ECD9E7", preco:null, desc:"Quebra-cabeça 200 peças"}
+      },
+      maxChars:20
+    },
+    mousepad:{
+      nome:"Mouse Pad",
+      cores:{
+        padrao:{rotulo:"30x25cm", fill:"#FFFFFF", stroke:"#ECD9E7", preco:null, desc:"Mouse pad 30x25cm"}
+      },
+      maxChars:20
+    },
+    body:{
+      nome:"Body de Bebê",
+      cores:{
+        branco:{rotulo:"Branco", fill:"#FFFFFF", stroke:"#ECD9E7", preco:null, desc:"Body de bebê branco"},
+        rosa:{rotulo:"Rosa clara", fill:"#F3C9D8", stroke:"#E58FAE", preco:null, desc:"Body de bebê rosa claro"},
+        azul:{rotulo:"Azul clara", fill:"#CFE3EF", stroke:"#8FB8D6", preco:null, desc:"Body de bebê azul claro"}
+      },
+      maxChars:14
+    },
     kit:{
       nome:"Kit Presente",
       cores:{
@@ -1055,18 +1201,24 @@ p{margin:0}
            "existente" = mockup próprio, não mexido (azulejo);
            "conjunto" = não é um produto único, é uma combinação (kit). */
   var CONFIG_PERSONALIZACAO = {
-    caneca:   { permiteFoto: true,  tipo: "superficie-total" },
-    camiseta: { permiteFoto: true,  tipo: "estampa" },
-    almofada: { permiteFoto: true,  tipo: "superficie-total" },
-    azulejo:  { permiteFoto: true,  tipo: "existente" },
-    kit:      { permiteFoto: false, tipo: "conjunto" }
+    caneca:       { permiteFoto: true,  tipo: "superficie-total" },
+    camiseta:     { permiteFoto: true,  tipo: "estampa" },
+    almofada:     { permiteFoto: true,  tipo: "superficie-total" },
+    azulejo:      { permiteFoto: true,  tipo: "existente" },
+    quebracabeca: { permiteFoto: true,  tipo: "superficie-total" },
+    mousepad:     { permiteFoto: true,  tipo: "superficie-total" },
+    body:         { permiteFoto: true,  tipo: "estampa" },
+    kit:          { permiteFoto: false, tipo: "conjunto" }
   };
 
   var AREAS_IMPRESSAO = {
-    caneca:   { x:72,  y:62,  width:196, height:204 },
-    camiseta: { x:158, y:120, width:84,  height:78  },
-    almofada: { x:74,  y:28,  width:252, height:264 },
-    azulejo:  { x:138, y:74,  width:124, height:72  }
+    caneca:       { x:72,  y:62,  width:196, height:204 },
+    camiseta:     { x:158, y:120, width:84,  height:78  },
+    almofada:     { x:74,  y:28,  width:252, height:264 },
+    azulejo:      { x:138, y:74,  width:124, height:72  },
+    quebracabeca: { x:122, y:60,  width:156, height:155 },
+    mousepad:     { x:55,  y:90,  width:290, height:150 },
+    body:         { x:156, y:100, width:88,  height:68  }
   };
 
   function aplicarAreasImpressao(){
@@ -1521,7 +1673,7 @@ p{margin:0}
     if(!prod.cores[estado.cor]) estado.cor = Object.keys(prod.cores)[0];
     var cor = prod.cores[estado.cor];
 
-    ["caneca","camiseta","almofada","azulejo","kit"].forEach(function(p){
+    ["caneca","camiseta","almofada","azulejo","quebracabeca","mousepad","body","kit"].forEach(function(p){
       var el = $("#svg-" + p);
       if(p !== estado.produto){ el.setAttribute("hidden",""); }
       else { el.removeAttribute("hidden"); }
