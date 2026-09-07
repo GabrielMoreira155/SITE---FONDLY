@@ -98,7 +98,7 @@ a{color:inherit}
 
 .wrap{width:100%;max-width:var(--max);margin:0 auto;padding:0 22px;position:relative;z-index:1}
 
-h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.08;margin:0;letter-spacing:-.015em}
+h1,h2,h3{font-family:var(--display);font-weight:600;line-height:1.08;margin:0;letter-spacing:-.015em;text-wrap:balance}
 h1{font-size:clamp(2.3rem,5.6vw,4rem)}
 h2{font-size:clamp(1.9rem,4vw,2.9rem)}
 h3{font-size:1.18rem;letter-spacing:0}
@@ -107,7 +107,9 @@ p{margin:0}
 .rotulo{
   font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
   color:var(--rosa-escuro);margin:0 0 14px;
+  display:inline-flex;align-items:center;gap:9px;
 }
+.rotulo::before{content:"";width:20px;height:1.5px;background:currentColor;display:inline-block;opacity:.75}
 
 /* ---------- topo ---------- */
 .topo{
@@ -143,14 +145,9 @@ p{margin:0}
   padding:13px 24px;border-radius:999px;border:1.5px solid transparent;
   text-decoration:none;cursor:pointer;transition:transform .15s ease,background .15s ease,color .15s ease;
 }
-.btn-cheio{background:var(--rosa-escuro);color:#fff;position:relative;overflow:hidden}
-.btn-cheio:hover{background:var(--vinho);transform:translateY(-1px)}
-.btn-cheio::after{
-  content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
-  background:linear-gradient(115deg,transparent,rgba(255,255,255,.55),transparent);
-  transform:skewX(-20deg);transition:left .6s ease;pointer-events:none;
-}
-.btn-cheio:hover::after{left:120%}
+.btn-cheio{background:var(--rosa-escuro);color:#fff;position:relative;transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
+.btn-cheio:hover{background:var(--vinho);transform:translateY(-1px);box-shadow:0 10px 20px -12px rgba(var(--sombra),.6)}
+.btn-cheio:active{transform:translateY(0);box-shadow:none;filter:brightness(.96)}
 .btn-vazio{background:transparent;color:var(--tinta-titulo);border-color:var(--linha)}
 .btn-vazio:hover{border-color:var(--rosa);background:var(--branco)}
 .btn-topo{padding:10px 18px;font-size:.9rem}
@@ -299,8 +296,7 @@ p{margin:0}
 .selos.visivel .selo{opacity:1;transform:none}
 .selos .selo:nth-child(2){transition-delay:.08s}
 .selos .selo:nth-child(3){transition-delay:.16s}
-.selo span{color:var(--amarelo);font-size:1.1rem;line-height:1;display:inline-block;animation:baterCoracao 1.8s ease-in-out infinite}
-@keyframes baterCoracao{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.15)}60%{transform:scale(1)}}
+.selo-icone{width:19px;height:19px;flex:0 0 auto;fill:none;stroke:var(--rosa-escuro);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
 /* ---------- secoes ---------- */
 .secao{padding:86px 0}
@@ -315,12 +311,12 @@ p{margin:0}
   transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;
 }
 .card::before{
-  content:"";position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--rosa),var(--lilas));
-  transform:scaleX(0);transform-origin:left;transition:transform .3s ease;
+  content:"";position:absolute;top:0;right:0;width:38px;height:38px;
+  background:linear-gradient(135deg,transparent 50%,var(--rosa) 50%);
+  opacity:.32;transition:opacity .25s ease;pointer-events:none;
 }
 .card:hover{transform:translateY(-4px);border-color:color-mix(in srgb, var(--rosa) 40%, var(--linha));box-shadow:0 22px 38px -24px color-mix(in srgb, var(--rosa-escuro) 45%, rgba(var(--sombra),.5))}
-.card:hover::before{transform:scaleX(1)}
+.card:hover::before{opacity:.7}
 .card .preco{font-family:var(--display);font-size:1.5rem;color:var(--rosa-escuro)}
 .card p{font-size:.95rem;color:var(--tinta-suave)}
 .card .escolher{
@@ -333,15 +329,17 @@ p{margin:0}
 .card .escolher:hover::after{transform:translateX(4px)}
 
 /* portfolio */
-.portfolio-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+.portfolio-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:26px 22px}
 .portfolio-item{
-  margin:0;background:var(--branco);border:1px solid var(--linha);border-radius:var(--raio);
-  overflow:hidden;transition:transform .18s ease,box-shadow .18s ease;
+  margin:0;background:var(--branco);border:1px solid var(--linha);border-radius:7px;
+  overflow:hidden;padding:9px 9px 0;
+  box-shadow:0 16px 30px -24px rgba(var(--sombra),.55);
+  transition:transform .18s ease,box-shadow .18s ease;
 }
-.portfolio-item:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--rosa) 40%, var(--linha));box-shadow:0 20px 34px -26px rgba(var(--sombra),.5)}
-.portfolio-item img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;transition:transform .5s ease}
-.portfolio-item:hover img{transform:scale(1.06)}
-.portfolio-item figcaption{padding:11px 14px;font-family:var(--display);font-size:.95rem;color:var(--tinta-titulo);text-align:center}
+.portfolio-item:hover{transform:translateY(-3px);box-shadow:0 22px 38px -22px rgba(var(--sombra),.6)}
+.portfolio-item img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:2px;transition:transform .5s ease}
+.portfolio-item:hover img{transform:scale(1.03)}
+.portfolio-item figcaption{padding:10px 6px 14px;font-family:var(--display);font-style:italic;font-size:.92rem;color:var(--tinta-titulo);text-align:center}
 
 /* passos */
 .passos{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;counter-reset:p}
@@ -871,9 +869,9 @@ p{margin:0}
 
   <div class="selos revela">
     <div class="wrap">
-      <div class="selo"><span>♥</span> Arte enviada pra você aprovar antes de imprimir</div>
-      <div class="selo"><span>♥</span> Pronto em até 3 dias úteis</div>
-      <div class="selo"><span>♥</span> Entrega em Goiânia</div>
+      <div class="selo"><svg class="selo-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.4 2.4 5-5.4"/></svg> Arte enviada pra você aprovar antes de imprimir</div>
+      <div class="selo"><svg class="selo-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.4 2.4 5-5.4"/></svg> Pronto em até 3 dias úteis</div>
+      <div class="selo"><svg class="selo-icone" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.3 12.3l2.4 2.4 5-5.4"/></svg> Entrega em Goiânia</div>
     </div>
   </div>
 
