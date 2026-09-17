@@ -11,22 +11,24 @@
 <style>
 :root{
   color-scheme:dark;
-  --porcelana:#241A2E;
-  --porcelana-2:#2C2038;
-  --rosa:#EF9FBC;
-  --rosa-escuro:#F4B6CD;
-  --vinho:#5C3670;
-  --tinta-titulo:#DCB3EA;
+  /* hierarquia de superfície: fundo (porcelana) < superfície (porcelana-2) < elevado (branco) */
+  --porcelana:#201319;
+  --porcelana-2:#2C1B22;
+  --rosa:#E38A9C;
+  --rosa-escuro:#C15C74;
+  --vinho:#7A2E42;
+  --tinta-titulo:#EDD9C8;
   --amarelo:#EEC25F;
   --tijolo:#BE3A32;
-  --grafite:#F6ECF3;
-  --linha:#4A3A54;
-  --branco:#2E2338;
+  --grafite:#F4E9DE;
+  --linha:#40292E;
+  --branco:#4A2E36;
+  --moldura:#F1E4D6;
   --lilas:#8A5F9E;
   --blush:#6E3B52;
-  --tinta-suave:#CBB4CF;
-  --tinta-fraca:#967F9E;
-  --sombra:10,4,16;
+  --tinta-suave:#DAC3B2;
+  --tinta-fraca:#C2A48D;
+  --sombra:20,10,8;
 
   --display:"Fraunces",Georgia,serif;
   --corpo:"Nunito",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -138,10 +140,11 @@ p{margin:0}
 .hero-foto{margin:24px 0 0;max-width:300px}
 .hero-foto img{
   display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;
-  border-radius:4px;box-shadow:0 30px 46px -24px rgba(var(--sombra),.55);
+  background:var(--moldura);padding:10px;border-radius:7px;
+  box-shadow:0 30px 46px -24px rgba(var(--sombra),.6);
 }
 .hero-foto figcaption{
-  margin-top:10px;font-size:.78rem;color:var(--tinta-fraca);
+  margin-top:12px;font-size:.78rem;color:var(--tinta-fraca);
   max-width:26ch;line-height:1.4;
 }
 
@@ -286,8 +289,9 @@ p{margin:0}
 .produto-linha:nth-child(even){flex-direction:row-reverse}
 .produto-linha-foto{flex:0 0 36%;max-width:320px}
 .produto-linha-foto img{
-  display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:4px;
-  box-shadow:0 28px 42px -26px rgba(var(--sombra),.5);
+  display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;
+  background:var(--moldura);padding:9px;border-radius:6px;
+  box-shadow:0 28px 42px -26px rgba(var(--sombra),.65);
 }
 .produto-linha-texto{flex:1;min-width:0}
 .produto-linha-texto h3{font-size:1.6rem}
@@ -394,13 +398,14 @@ p{margin:0}
 .faq details[open] p{animation:abrirFaq .35s ease both}
 @keyframes abrirFaq{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 
-/* chamada final */
-.final{padding:0}
+/* chamada final — fecha a página num tom vinho mais quente, não no mesmo roxo de sempre */
+.final{padding:0;background:color-mix(in srgb, var(--vinho) 25%, var(--porcelana))}
 .final-grade{display:flex;align-items:center;gap:64px;padding:92px 0}
 .final-foto{flex:0 0 36%;max-width:300px;margin:0}
 .final-foto img{
-  display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;border-radius:4px;
-  box-shadow:0 30px 46px -24px rgba(var(--sombra),.55);
+  display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;
+  background:var(--moldura);padding:10px;border-radius:7px;
+  box-shadow:0 30px 46px -24px rgba(var(--sombra),.6);
 }
 .final-texto{flex:1;min-width:0}
 .final h2{max-width:16ch;margin:0}
