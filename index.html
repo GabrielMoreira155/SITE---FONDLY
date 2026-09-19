@@ -145,7 +145,7 @@ p{margin:0}
   margin-top:16px;display:block;
 }
 
-.hero-foto{margin:24px 0 0;max-width:300px}
+.hero-foto{margin:24px 0 0;max-width:300px;position:relative}
 .hero-foto img{
   display:block;width:100%;height:auto;aspect-ratio:4/5;object-fit:cover;
   background:var(--moldura);padding:10px;border-radius:7px;
@@ -478,6 +478,7 @@ p{margin:0}
   filter:saturate(.35) contrast(.9) brightness(.93);
   transition:filter 1s var(--ease-suave) .05s;
 }
+.portfolio-item img{transition:filter 1s var(--ease-suave) .05s, transform .25s ease}
 .produtos-lista.visivel .produto-linha-foto img,
 .final-grade.visivel .final-foto img,
 .portfolio-grade.visivel .portfolio-item img{
@@ -498,6 +499,97 @@ p{margin:0}
 .passos .passo:nth-child(4),.fitas .fita:nth-child(4){transition-delay:.24s}
 .fitas .fita:nth-child(5){transition-delay:.32s}
 .fitas .fita:nth-child(6){transition-delay:.4s}
+
+/* ---------- refinamento: brilho, ripple, tilt, shimmer, sombras dinâmicas ---------- */
+
+/* brilho passando no botão principal — só em telas com hover de verdade */
+.btn-cheio{overflow:hidden}
+.btn-cheio::before{
+  content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+  background:linear-gradient(115deg, transparent, rgba(255,255,255,.35), transparent);
+  transform:skewX(-20deg);pointer-events:none;
+}
+@media (hover:hover) and (pointer:fine){
+  .btn-cheio:hover::before{animation:brilhoBotao .9s ease}
+}
+@keyframes brilhoBotao{from{left:-60%}to{left:130%}}
+.pedir.confirmado{background:var(--vinho)}
+
+/* ripple de clique/toque nos botões principais */
+.ripple{
+  position:absolute;border-radius:50%;background:rgba(255,255,255,.55);
+  transform:scale(0);pointer-events:none;animation:rippleAnim .6s ease-out forwards;
+}
+@keyframes rippleAnim{to{transform:scale(2.6);opacity:0}}
+
+/* shimmer enquanto a imagem real ainda está carregando */
+.img-carregando{
+  background:linear-gradient(100deg, var(--porcelana-2) 20%, var(--porcelana) 40%, var(--porcelana-2) 60%);
+  background-size:200% 100%;animation:shimmerAnim 1.4s ease-in-out infinite;
+}
+@keyframes shimmerAnim{0%{background-position:150% 0}100%{background-position:-50% 0}}
+
+/* sombra de contato dinâmica sob a caneca 3D, acompanha o giro via JS */
+.caneca-sombra{
+  position:absolute;left:50%;top:0;width:56%;height:16px;
+  background:radial-gradient(ellipse, rgba(0,0,0,.55), transparent 72%);
+  transform:translateX(-50%);filter:blur(3px);pointer-events:none;
+}
+
+/* sombra reagindo ao flip da camiseta/almofada */
+.flip-3d-inner{filter:drop-shadow(0 14px 18px rgba(var(--sombra),.16))}
+.produto-flip.virado .flip-3d-inner{filter:drop-shadow(0 24px 28px rgba(var(--sombra),.28))}
+
+/* brilho breve no swatch recém-escolhido, além do anel que já existe */
+.cor.recem-escolhida{animation:corGlow 1.1s ease-out}
+@keyframes corGlow{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--rosa-escuro) 65%, transparent),0 0 0 2.5px var(--rosa-escuro)}
+  100%{box-shadow:0 0 0 13px transparent,0 0 0 2.5px var(--rosa-escuro)}
+}
+
+/* barra de progresso de leitura no topo da viewport */
+.barra-progresso{position:fixed;top:0;left:0;height:3px;width:0%;z-index:70;background:linear-gradient(90deg,var(--rosa),var(--rosa-escuro));pointer-events:none}
+
+/* aurora bem suave na seção de ocasiões */
+.ocasioes{position:relative;overflow:hidden}
+.ocasioes::before{
+  content:"";position:absolute;inset:-20%;z-index:0;pointer-events:none;
+  background:radial-gradient(38% 38% at 30% 30%, color-mix(in srgb, var(--rosa) 18%, transparent), transparent 70%),
+             radial-gradient(32% 32% at 75% 70%, color-mix(in srgb, var(--vinho) 26%, transparent), transparent 70%);
+  animation:auroraMove 22s ease-in-out infinite alternate;
+}
+.ocasioes .wrap{position:relative;z-index:1}
+@keyframes auroraMove{0%{transform:translate(0,0) scale(1)}100%{transform:translate(3%,-4%) scale(1.08)}}
+
+/* partículas decorativas discretas no hero */
+.particula{
+  position:absolute;border-radius:50%;background:var(--rosa);opacity:.3;pointer-events:none;
+  animation:flutuarParticula 7s ease-in-out infinite;
+}
+@keyframes flutuarParticula{0%,100%{transform:translateY(0) translateX(0)}50%{transform:translateY(-16px) translateX(6px)}}
+@media (max-width:620px){.particula{display:none}}
+
+/* toast de confirmação (ex.: foto adicionada) */
+.toast{
+  position:fixed;left:50%;top:84px;transform:translateX(-50%) translateY(-30px);
+  background:var(--vinho);color:#fff;padding:12px 22px;border-radius:999px;
+  font-size:.88rem;font-weight:700;box-shadow:0 14px 30px -10px rgba(0,0,0,.5);
+  z-index:80;transition:transform .4s var(--ease-pop),opacity .3s ease,visibility 0s linear .3s;
+  pointer-events:none;white-space:nowrap;opacity:0;visibility:hidden;
+}
+.toast.visivel{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible;transition:transform .4s var(--ease-pop),opacity .3s ease}
+
+/* contador de caracteres da frase */
+.campo-frase-cabeca{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.contador-frase{font-size:.72rem;color:var(--tinta-fraca);transition:color var(--dur-rapido) ease;white-space:nowrap}
+.contador-frase.perto{color:var(--rosa-escuro)}
+.contador-frase.limite{color:#E8708A}
+
+/* scroll-snap bem leve, só desktop, só entre as seções principais */
+@media (min-width:941px) and (prefers-reduced-motion:no-preference){
+  html{scroll-snap-type:y proximity}
+  .hero,.secao{scroll-snap-align:start}
+}
 
 @media (max-width:940px){
   .hero .wrap{grid-template-columns:1fr;gap:36px;grid-template-areas:"intro" "palco" "form"}
@@ -532,7 +624,9 @@ p{margin:0}
   *{animation:none!important;transition:none!important}
   .revela{opacity:1;transform:none}
   .portfolio-grade .portfolio-item,.passos .passo,.fitas .fita{opacity:1!important;transform:none!important}
-  html{scroll-behavior:auto}
+  html{scroll-behavior:auto;scroll-snap-type:none}
+  .particula{display:none}
+  .ocasioes::before{animation:none;opacity:.5}
 }
 </style>
 </head>
@@ -574,7 +668,10 @@ p{margin:0}
 
         <div class="montagem">
           <div class="campo">
-            <label for="frase">Frase que vai no presente</label>
+            <div class="campo-frase-cabeca">
+              <label for="frase">Frase que vai no presente</label>
+              <span class="contador-frase" id="contador-frase">0/42</span>
+            </div>
             <input type="text" id="frase" maxlength="42" placeholder="Ex: Família é onde a vida começa" autocomplete="off">
           </div>
 
@@ -662,6 +759,7 @@ p{margin:0}
         <!-- CANECA -->
         <div class="produto-svg produto-3d" id="svg-caneca">
           <canvas id="tela-caneca" width="400" height="330" role="img" aria-label="Prévia da caneca personalizada em 3D, arraste em qualquer direção para girar"></canvas>
+          <div class="caneca-sombra" aria-hidden="true"></div>
           <span class="dica-girar">✛ arraste pra girar</span>
         </div>
 
@@ -1311,6 +1409,7 @@ p{margin:0}
   };
 
   var estado = {produto:"caneca", cor:"branca", frase:"", ocasiao:"Aniversário", qtd:1, foto:null, fotoNome:""};
+  var corGlowAlvo = null;
 
   /* Área de impressão de cada produto: fonte única de verdade.
      x/y/width/height são coordenadas dentro do viewBox 400x330 de cada SVG.
@@ -1677,14 +1776,33 @@ p{margin:0}
     var arrastando = false, ultimoX = 0, ultimoY = 0;
     var rotY = 0, rotX = 0;
     var LIMITE_X = .78;
+    var elSombra = wrapEl.querySelector(".caneca-sombra");
+    var reduzMovimentoCaneca = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var snapAnimId = null;
+    function cancelarSnap(){ if(snapAnimId){ cancelAnimationFrame(snapAnimId); snapAnimId = null; } }
+
+    function posicionarSombra(){
+      if(!elSombra) return;
+      var alturaCanvas = canvas.clientHeight || canvas.getBoundingClientRect().height;
+      if(alturaCanvas) elSombra.style.top = Math.max(0, alturaCanvas - 12) + "px";
+    }
+    posicionarSombra();
+    window.addEventListener("resize", posicionarSombra);
 
     function aplicarRotacao(){
       grupo.rotation.y = rotY;
       grupo.rotation.x = rotX;
+      if(elSombra){
+        var escalaX = .72 + .28 * Math.abs(Math.cos(rotY));
+        var escalaY = 1 - Math.min(.3, Math.abs(rotX) * .28);
+        var deslocX = Math.sin(rotY) * 9;
+        elSombra.style.transform = "translateX(calc(-50% + " + deslocX.toFixed(1) + "px)) scale(" + escalaX.toFixed(3) + "," + escalaY.toFixed(3) + ")";
+      }
       renderizar();
     }
 
     canvas.addEventListener("pointerdown", function(e){
+      cancelarSnap();
       arrastando = true; ultimoX = e.clientX; ultimoY = e.clientY;
       canvas.setPointerCapture(e.pointerId);
     });
@@ -1696,7 +1814,23 @@ p{margin:0}
       rotX = Math.max(-LIMITE_X, Math.min(LIMITE_X, rotX - dy * .012));
       aplicarRotacao();
     });
-    function soltar(){ arrastando = false; }
+    function soltar(){
+      if(!arrastando) return;
+      arrastando = false;
+      if(reduzMovimentoCaneca) return;
+      cancelarSnap();
+      var y0 = rotY, x0 = rotX, t0 = null, dur = 550;
+      function passo(ts){
+        if(t0 === null) t0 = ts;
+        var p = Math.min(1, (ts - t0) / dur);
+        var facil = 1 - Math.pow(1 - p, 3);
+        rotY = y0 * (1 - facil);
+        rotX = x0 * (1 - facil);
+        aplicarRotacao();
+        snapAnimId = p < 1 ? requestAnimationFrame(passo) : null;
+      }
+      snapAnimId = requestAnimationFrame(passo);
+    }
     canvas.addEventListener("pointerup", soltar);
     canvas.addEventListener("pointercancel", soltar);
     canvas.addEventListener("pointerleave", soltar);
@@ -1786,7 +1920,11 @@ p{margin:0}
       b.title = c.rotulo;
       b.setAttribute("aria-label", "Cor " + c.rotulo);
       b.setAttribute("aria-pressed", chave === estado.cor ? "true" : "false");
-      b.addEventListener("click", function(){ estado.cor = chave; render(); });
+      if(chave === estado.cor && chave === corGlowAlvo){
+        b.classList.add("recem-escolhida");
+        corGlowAlvo = null;
+      }
+      b.addEventListener("click", function(){ corGlowAlvo = chave; estado.cor = chave; render(); });
       elCores.appendChild(b);
     });
   }
@@ -1930,6 +2068,7 @@ p{margin:0}
   });
 
   var campoFrase = elFrase.closest(".campo");
+  var elContadorFrase = $("#contador-frase");
   elFrase.addEventListener("input", function(){
     var tinhaAntes = estado.frase.trim().length > 0;
     estado.frase = elFrase.value;
@@ -1937,6 +2076,13 @@ p{margin:0}
       campoFrase.classList.remove("campo-pop");
       void campoFrase.offsetWidth;
       campoFrase.classList.add("campo-pop");
+    }
+    if(elContadorFrase){
+      var max = parseInt(elFrase.getAttribute("maxlength"), 10) || 42;
+      var len = elFrase.value.length;
+      elContadorFrase.textContent = len + "/" + max;
+      elContadorFrase.classList.toggle("perto", len >= max - 8 && len < max);
+      elContadorFrase.classList.toggle("limite", len >= max);
     }
     render();
   });
@@ -1959,6 +2105,7 @@ p{margin:0}
       void elFotoArea.offsetWidth;
       elFotoArea.classList.add("selecionada");
     }
+    mostrarToast("Foto adicionada! ✓");
     render();
   });
 
@@ -1994,9 +2141,21 @@ p{margin:0}
     return "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent(texto);
   }
 
-  $("#pedir").addEventListener("click", function(){
-    window.open(linkPedido(), "_blank", "noopener");
-  });
+  (function(){
+    var elPedir = $("#pedir");
+    var htmlOriginalPedir = elPedir.innerHTML;
+    var timerPedir;
+    elPedir.addEventListener("click", function(){
+      window.open(linkPedido(), "_blank", "noopener");
+      elPedir.classList.add("confirmado");
+      elPedir.textContent = "Abrindo WhatsApp ✓";
+      clearTimeout(timerPedir);
+      timerPedir = setTimeout(function(){
+        elPedir.classList.remove("confirmado");
+        elPedir.innerHTML = htmlOriginalPedir;
+      }, 1100);
+    });
+  })();
 
   var linkSimples = "https://wa.me/" + WHATSAPP + "?text=" + encodeURIComponent("Oi, Fondly! Vim pelo site e quero fazer um orçamento.");
   $("#flutua").href = linkSimples;
@@ -2103,6 +2262,95 @@ p{margin:0}
       });
     }
   })();
+
+  /* ---------- refinamentos adicionais: ripple, tilt, shimmer, progresso, partículas, toast ---------- */
+  var reduzMovimentoGeral = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var temHoverFino = window.matchMedia && window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+
+  // ripple de clique/toque nos botões principais
+  $$(".btn-cheio").forEach(function(btn){
+    btn.addEventListener("click", function(e){
+      var r = btn.getBoundingClientRect();
+      var d = Math.max(r.width, r.height) * 1.6;
+      var x = (typeof e.clientX === "number" && e.clientX ? e.clientX - r.left : r.width / 2) - d / 2;
+      var y = (typeof e.clientY === "number" && e.clientY ? e.clientY - r.top : r.height / 2) - d / 2;
+      var span = document.createElement("span");
+      span.className = "ripple";
+      span.style.width = span.style.height = d + "px";
+      span.style.left = x + "px";
+      span.style.top = y + "px";
+      btn.appendChild(span);
+      setTimeout(function(){ span.remove(); }, 650);
+    });
+  });
+
+  // tilt 3D nas fotos do portfólio — só em telas com mouse de verdade
+  if(temHoverFino && !reduzMovimentoGeral){
+    $$(".portfolio-item").forEach(function(item){
+      var img = item.querySelector("img");
+      if(!img) return;
+      item.addEventListener("mousemove", function(e){
+        var r = item.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - .5;
+        var py = (e.clientY - r.top) / r.height - .5;
+        img.style.transform = "perspective(700px) rotateX(" + (py * -8).toFixed(2) + "deg) rotateY(" + (px * 8).toFixed(2) + "deg) scale(1.03)";
+      });
+      item.addEventListener("mouseleave", function(){ img.style.transform = ""; });
+    });
+  }
+
+  // shimmer enquanto as fotos reais ainda estão carregando
+  $$(".produto-linha-foto img, .portfolio-item img, .final-foto img, .hero-foto img").forEach(function(img){
+    if(img.complete && img.naturalWidth > 0) return;
+    img.classList.add("img-carregando");
+    img.addEventListener("load", function(){ img.classList.remove("img-carregando"); }, {once:true});
+  });
+
+  // barra de progresso de leitura no topo
+  (function(){
+    var barra = document.createElement("div");
+    barra.className = "barra-progresso";
+    document.body.appendChild(barra);
+    function atualizarBarra(){
+      var altura = document.documentElement.scrollHeight - window.innerHeight;
+      barra.style.width = (altura > 0 ? (window.scrollY / altura) * 100 : 0) + "%";
+    }
+    window.addEventListener("scroll", atualizarBarra, {passive:true});
+    window.addEventListener("resize", atualizarBarra);
+    atualizarBarra();
+  })();
+
+  // partículas decorativas discretas no hero
+  if(!reduzMovimentoGeral){
+    var heroFig = $(".hero-foto");
+    if(heroFig){
+      for(var pi = 0; pi < 5; pi++){
+        var p = document.createElement("span");
+        p.className = "particula";
+        var tam = 3 + Math.random() * 4;
+        p.style.width = p.style.height = tam + "px";
+        p.style.left = (Math.random() * 100) + "%";
+        p.style.top = (Math.random() * 100) + "%";
+        p.style.animationDelay = (Math.random() * 6) + "s";
+        p.style.animationDuration = (6 + Math.random() * 4) + "s";
+        heroFig.appendChild(p);
+      }
+    }
+  }
+
+  // toast de confirmação
+  var elToast = document.createElement("div");
+  elToast.className = "toast";
+  elToast.setAttribute("role", "status");
+  elToast.setAttribute("aria-live", "polite");
+  document.body.appendChild(elToast);
+  var toastTimer;
+  function mostrarToast(msg){
+    elToast.textContent = msg;
+    elToast.classList.add("visivel");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ elToast.classList.remove("visivel"); }, 2200);
+  }
 })();
 </script>
 </body>
