@@ -36,6 +36,14 @@
 
   --raio:14px;
   --max:1120px;
+
+  /* tempos e curvas padrão — convergem os hovers/microinterações,
+     animações de entrada/assinatura (surgir, passo, flip) ficam de fora de propósito */
+  --dur-micro:.15s;
+  --dur-rapido:.2s;
+  --dur-suave:.32s;
+  --ease-suave:cubic-bezier(.3,.7,.3,1);
+  --ease-pop:cubic-bezier(.34,1.56,.64,1);
 }
 
 *{box-sizing:border-box}
@@ -81,7 +89,7 @@ p{margin:0}
   position:sticky;top:0;z-index:40;
   background:transparent;
   border-bottom:1px solid transparent;
-  transition:background .25s ease, border-color .25s ease, box-shadow .25s ease;
+  transition:background var(--dur-suave) ease, border-color var(--dur-suave) ease, box-shadow var(--dur-suave) ease;
 }
 .topo.rolou{
   background:color-mix(in srgb, var(--porcelana) 94%, transparent);
@@ -91,7 +99,8 @@ p{margin:0}
 }
 .topo .wrap{display:flex;align-items:center;gap:26px;height:70px}
 .marca{display:flex;align-items:center;gap:10px;text-decoration:none;flex:0 0 auto}
-.marca .logo{width:40px;height:auto;display:block;filter:drop-shadow(0 2px 4px rgba(var(--sombra),.28));transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.marca .logo{width:40px;height:auto;display:block;filter:drop-shadow(0 2px 4px rgba(var(--sombra),.28));transition:transform var(--dur-suave) var(--ease-pop)}
+.topo.rolou .marca .logo{transform:scale(.86)}
 .marca:hover .logo{animation:acenoLogo .6s ease}
 @keyframes acenoLogo{0%,100%{transform:rotate(0)}30%{transform:rotate(-8deg) scale(1.05)}65%{transform:rotate(6deg) scale(1.05)}}
 .marca .tipo{font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--tinta-titulo);opacity:.7;font-weight:700}
@@ -100,7 +109,7 @@ p{margin:0}
 .menu a::after{
   content:"";position:absolute;left:0;right:0;bottom:0;height:1.5px;
   background:var(--rosa-escuro);transform:scaleX(0);transform-origin:left;
-  transition:transform .28s cubic-bezier(.3,.7,.3,1);
+  transition:transform var(--dur-suave) var(--ease-suave);
 }
 .menu a:hover::after,.menu a:focus-visible::after{transform:scaleX(1)}
 
@@ -108,9 +117,9 @@ p{margin:0}
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   font-family:var(--corpo);font-size:.98rem;font-weight:600;
   padding:13px 24px;border-radius:999px;border:1.5px solid transparent;
-  text-decoration:none;cursor:pointer;transition:transform .15s ease,background .15s ease,color .15s ease;
+  text-decoration:none;cursor:pointer;transition:transform var(--dur-micro) ease,background var(--dur-micro) ease,color var(--dur-micro) ease;
 }
-.btn-cheio{background:var(--rosa-escuro);color:#fff;position:relative;transition:transform .15s ease,background .15s ease,box-shadow .15s ease}
+.btn-cheio{background:var(--rosa-escuro);color:#fff;position:relative;transition:transform var(--dur-micro) ease,background var(--dur-micro) ease,box-shadow var(--dur-micro) ease}
 .btn-cheio:hover{background:var(--vinho);transform:translateY(-1px);box-shadow:0 10px 20px -12px rgba(var(--sombra),.6)}
 .btn-cheio:active{transform:translateY(0);box-shadow:none;filter:brightness(.96)}
 .btn-vazio{background:transparent;color:var(--tinta-titulo);border-color:var(--linha)}
@@ -173,21 +182,22 @@ p{margin:0}
   background:none;border:none;padding:0;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;gap:7px;
   font-family:var(--corpo);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--tinta-titulo);opacity:.55;transition:opacity .15s ease;
+  color:var(--tinta-titulo);opacity:.55;transition:opacity var(--dur-micro) ease;
 }
 .aba .anel{
   width:52px;height:52px;border-radius:50%;
   border:1.5px solid var(--rosa);
   display:grid;place-items:center;
-  transition:background .18s ease,transform .18s ease;
+  transition:background var(--dur-rapido) ease,transform var(--dur-rapido) ease;
 }
 .aba svg{width:26px;height:26px;stroke:var(--rosa-escuro);fill:none;stroke-width:1.6}
 .aba:hover{opacity:.85}
 .aba[aria-selected="true"]{opacity:1;font-weight:700}
 .aba[aria-selected="true"] .anel{background:var(--branco);transform:scale(1.06);box-shadow:0 0 0 3px color-mix(in srgb, var(--rosa) 26%, transparent)}
 
-.produto-svg{display:block;margin:0 auto;width:100%;max-width:400px}
+.produto-svg{display:block;margin:0 auto;width:100%;max-width:400px;transition:opacity var(--dur-suave) var(--ease-suave)}
 .produto-svg[hidden]{display:none}
+.produto-svg.produto-trocando{opacity:0}
 .produto-3d{position:relative;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none}
 .produto-3d:active{cursor:grabbing}
 .produto-3d canvas{display:block;width:100%;height:auto}
@@ -196,7 +206,7 @@ p{margin:0}
   font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
   color:var(--tinta-fraca);background:color-mix(in srgb, var(--branco) 75%, transparent);
   padding:4px 11px;border-radius:999px;pointer-events:none;white-space:nowrap;
-  display:flex;align-items:center;gap:5px;opacity:0;transition:opacity .3s ease;
+  display:flex;align-items:center;gap:5px;opacity:0;transition:opacity var(--dur-suave) ease;
 }
 .produto-3d.pronto .dica-girar{opacity:1}
 
@@ -212,12 +222,12 @@ p{margin:0}
 .flip-3d-face{display:block;position:absolute;inset:0;width:100%}
 .flip-3d-face svg{display:block;width:100%;height:100%}
 .flip-3d-face.verso{transform:rotateY(180deg);display:none}
-.corpo-produto{transition:fill .25s ease}
+.corpo-produto{transition:fill var(--dur-suave) ease}
 .cores{display:flex;justify-content:center;gap:10px;margin-top:6px}
 .cor{
   width:30px;height:30px;border-radius:50%;cursor:pointer;
   border:1.5px solid var(--linha);padding:0;
-  transition:transform .3s cubic-bezier(.34,1.56,.64,1),box-shadow .2s ease;
+  transition:transform var(--dur-suave) var(--ease-pop),box-shadow var(--dur-rapido) ease;
 }
 .cor:hover{transform:scale(1.1)}
 .cor[aria-pressed="true"]{box-shadow:0 0 0 2.5px var(--rosa-escuro);transform:scale(1.12)}
@@ -225,11 +235,13 @@ p{margin:0}
 /* formulario */
 .montagem{grid-area:form;margin-top:34px;display:grid;gap:18px}
 .campo{display:grid;gap:8px}
+.campo.campo-pop{animation:campoPop .4s var(--ease-pop)}
+@keyframes campoPop{0%{transform:scale(1)}45%{transform:scale(1.018)}100%{transform:scale(1)}}
 .campo label{font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--tinta-fraca)}
 .campo input[type=text],.campo select,.campo input[type=number]{
   font-family:var(--display);font-size:1.08rem;color:var(--grafite);
   padding:9px 2px;border:none;border-bottom:1.5px solid var(--linha);border-radius:0;background:transparent;width:100%;
-  transition:border-color .2s ease;
+  transition:border-color var(--dur-rapido) ease;
 }
 .campo input:focus,.campo select:focus{border-color:var(--rosa-escuro);outline:none}
 .dupla{display:grid;grid-template-columns:1.4fr .6fr;gap:14px}
@@ -237,14 +249,14 @@ p{margin:0}
   position:relative;
   border:1.5px solid var(--linha);border-radius:8px;background:var(--porcelana-2);
   padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;
-  transition:background .2s ease,border-color .2s ease,transform .2s ease;
+  transition:background var(--dur-rapido) ease,border-color var(--dur-rapido) ease,transform var(--dur-rapido) ease;
 }
 .foto-area:hover{background:var(--branco);border-color:var(--rosa-escuro)}
 .foto-area:active{transform:scale(.99)}
 .foto-area input{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;opacity:0;cursor:pointer;-webkit-appearance:none}
 .foto-area .txt{font-size:.93rem;color:var(--tinta-suave);line-height:1.35}
 .foto-area .txt b{color:var(--tinta-titulo);display:block;font-size:1rem}
-.foto-area .icone{width:38px;height:38px;flex:0 0 auto;stroke:var(--rosa-escuro);fill:none;stroke-width:1.5;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.foto-area .icone{width:38px;height:38px;flex:0 0 auto;stroke:var(--rosa-escuro);fill:none;stroke-width:1.5;transition:transform var(--dur-suave) var(--ease-pop)}
 .foto-area:hover .icone{transform:translateY(-2px) scale(1.06)}
 .foto-area.selecionada{border-style:solid;border-color:var(--rosa-escuro);animation:fotoPop .45s cubic-bezier(.34,1.56,.64,1)}
 .foto-area.selecionada .icone{stroke:var(--rosa-escuro)}
@@ -302,7 +314,7 @@ p{margin:0}
   text-align:left;display:inline-flex;align-items:center;gap:7px;
 }
 .produto-linha-texto > .escolher:hover{color:var(--rosa-escuro)}
-.produto-linha-texto > .escolher::after{content:"→";transition:transform .15s ease}
+.produto-linha-texto > .escolher::after{content:"→";transition:transform var(--dur-micro) ease}
 .produto-linha-texto > .escolher:hover::after{transform:translateX(4px)}
 
 .produto-opcoes{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
@@ -310,7 +322,7 @@ p{margin:0}
   display:flex;flex-direction:column;gap:3px;text-align:left;cursor:pointer;
   background:none;border:1.5px solid var(--linha);border-radius:8px;padding:11px 16px;
   font-family:var(--corpo);color:var(--tinta-titulo);
-  transition:border-color .2s ease,background .2s ease;
+  transition:border-color var(--dur-rapido) ease,background var(--dur-rapido) ease;
 }
 .produto-opcao span{font-size:.83rem;color:var(--tinta-suave);max-width:26ch}
 .produto-opcao strong{font-family:var(--display);font-size:1.15rem;color:var(--rosa-escuro);font-weight:600}
@@ -330,7 +342,7 @@ p{margin:0}
   background:var(--branco);border:1px solid var(--linha);border-radius:7px;
   overflow:hidden;padding:9px 9px 0;
   box-shadow:0 16px 30px -24px rgba(var(--sombra),.55);
-  transition:transform .18s ease,box-shadow .18s ease;
+  transition:transform var(--dur-rapido) ease,box-shadow var(--dur-rapido) ease;
 }
 .portfolio-item:hover{transform:translateY(-3px);box-shadow:0 22px 38px -22px rgba(var(--sombra),.6)}
 .portfolio-item img{display:block;width:100%;height:auto;border-radius:2px;transition:transform .5s ease}
@@ -366,7 +378,7 @@ p{margin:0}
   display:inline-block;
   border:1px solid var(--linha);border-radius:999px;background:var(--branco);
   padding:10px 20px;font-size:.95rem;color:var(--tinta-titulo);
-  transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease,border-color .25s ease;
+  transition:transform var(--dur-suave) var(--ease-pop),box-shadow var(--dur-suave) ease,border-color var(--dur-suave) ease;
 }
 .fita:hover{transform:translateY(-2px) rotate(-1.5deg);box-shadow:0 10px 20px -14px rgba(var(--sombra),.5);border-color:var(--rosa)}
 .fita.destaque{
@@ -377,11 +389,11 @@ p{margin:0}
 
 /* faq */
 .faq{max-width:720px}
-.faq details{border-bottom:1px solid var(--linha);padding:20px 0;transition:background .2s ease}
+.faq details{border-bottom:1px solid var(--linha);padding:20px 0;transition:background var(--dur-rapido) ease}
 .faq summary{
   cursor:pointer;list-style:none;font-family:var(--display);font-size:1.12rem;font-weight:600;
   display:flex;justify-content:space-between;gap:20px;align-items:center;color:var(--tinta-titulo);
-  transition:color .2s ease;
+  transition:color var(--dur-rapido) ease;
 }
 .faq summary::-webkit-details-marker{display:none}
 .faq summary:hover{color:var(--rosa-escuro)}
@@ -389,13 +401,15 @@ p{margin:0}
   content:"+";flex:0 0 auto;width:22px;text-align:center;
   font-family:var(--display);font-size:1.5rem;line-height:1;font-weight:400;
   color:var(--rosa-escuro);
-  transition:transform .3s cubic-bezier(.3,.7,.3,1);
+  transition:transform var(--dur-suave) var(--ease-suave);
 }
 .faq details[open] summary::after{transform:rotate(135deg)}
 .faq details[open] summary{color:var(--rosa-escuro)}
-.faq details p{margin-top:12px;font-size:.98rem;color:var(--tinta-suave);max-width:62ch}
-.faq details[open] p{animation:abrirFaq .35s ease both}
-@keyframes abrirFaq{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+/* resposta com altura animada de verdade, não só um fade instantâneo —
+   controlada via JS (max-height), porque o <details> do Chromium aplica
+   um content-visibility interno que quebra o truque de grid-rows puro em CSS */
+.faq-resposta{overflow:hidden;max-height:0;transition:max-height .4s var(--ease-suave)}
+.faq-resposta > p{padding-top:12px;margin:0;font-size:.98rem;color:var(--tinta-suave);max-width:62ch}
 
 /* chamada final */
 .final{padding:0}
@@ -421,7 +435,7 @@ p{margin:0}
 .rodape .links a svg{width:15px;height:15px;flex:0 0 auto;stroke:currentColor;fill:none;stroke-width:1.6;opacity:.8}
 .rodape .links a::after{
   content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;
-  background:var(--rosa-escuro);transform:scaleX(0);transform-origin:left;transition:transform .25s ease;
+  background:var(--rosa-escuro);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-suave) ease;
 }
 .rodape .links a:hover{color:var(--rosa-escuro)}
 .rodape .links a:hover::after{transform:scaleX(1)}
@@ -433,7 +447,7 @@ p{margin:0}
   position:fixed;right:20px;bottom:20px;z-index:50;
   width:58px;height:58px;border-radius:50%;background:#25D366;
   display:grid;place-items:center;box-shadow:0 10px 26px -8px rgba(0,0,0,.45);
-  transition:transform .18s ease;
+  transition:transform var(--dur-rapido) ease;
 }
 .flutua:hover{transform:scale(1.07)}
 .flutua svg{width:30px;height:30px;fill:#fff;position:relative;z-index:1}
@@ -451,6 +465,20 @@ p{margin:0}
 /* revelacao */
 .revela{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
 .revela.visivel{opacity:1;transform:none}
+
+/* fotos reais "revelando" — nitidez e saturação crescem ao entrar, como uma
+   foto sendo revelada, em vez do mesmo fade+subida genérico do texto */
+.produto-linha-foto img,.final-foto img,.portfolio-item img{
+  filter:saturate(.35) contrast(.9) brightness(.93);
+  transition:filter 1s var(--ease-suave) .05s;
+}
+.produtos-lista.visivel .produto-linha-foto img,
+.final-grade.visivel .final-foto img,
+.portfolio-grade.visivel .portfolio-item img{
+  filter:none;
+}
+@keyframes revelarFoto{from{filter:saturate(.35) contrast(.9) brightness(.93)}to{filter:none}}
+.hero-foto img{animation:revelarFoto 1.1s var(--ease-suave) .3s both}
 
 .portfolio-grade.revela .portfolio-item,.passos.revela .passo,.fitas.revela .fita{
   opacity:0;transform:translateY(16px);
@@ -1129,27 +1157,27 @@ p{margin:0}
       <div class="faq revela">
         <details open>
           <summary>Qual foto eu posso mandar?</summary>
-          <p>Foto do celular resolve na maioria dos casos. Evite imagem muito escura, tremida ou baixada de story, porque ela sai borrada na impressão. Se a sua não estiver boa, a gente avisa antes de produzir.</p>
+          <div class="faq-resposta"><p>Foto do celular resolve na maioria dos casos. Evite imagem muito escura, tremida ou baixada de story, porque ela sai borrada na impressão. Se a sua não estiver boa, a gente avisa antes de produzir.</p></div>
         </details>
         <details>
           <summary>Em quanto tempo fica pronto?</summary>
-          <p>Até 3 dias úteis depois da arte aprovada. Pedidos grandes e datas comemorativas podem levar um pouco mais, e nesse caso a gente combina o prazo na hora do orçamento.</p>
+          <div class="faq-resposta"><p>Até 3 dias úteis depois da arte aprovada. Pedidos grandes e datas comemorativas podem levar um pouco mais, e nesse caso a gente combina o prazo na hora do orçamento.</p></div>
         </details>
         <details>
           <summary>Vocês entregam fora de Goiânia?</summary>
-          <p>Por enquanto não, a entrega é só em Goiânia mesmo, combinada por região direto no WhatsApp.</p>
+          <div class="faq-resposta"><p>Por enquanto não, a entrega é só em Goiânia mesmo, combinada por região direto no WhatsApp.</p></div>
         </details>
         <details>
           <summary>Como funciona o pagamento?</summary>
-          <p>Pix, cartão ou dinheiro. Peço metade do valor na aprovação da arte e o restante na entrega.</p>
+          <div class="faq-resposta"><p>Pix, cartão ou dinheiro. Peço metade do valor na aprovação da arte e o restante na entrega.</p></div>
         </details>
         <details>
           <summary>A estampa desbota na lavagem?</summary>
-          <p>Não. Na sublimação a tinta entra no material em vez de ficar por cima, então não descasca nem racha. Nas camisetas o único cuidado é lavar do avesso.</p>
+          <div class="faq-resposta"><p>Não. Na sublimação a tinta entra no material em vez de ficar por cima, então não descasca nem racha. Nas camisetas o único cuidado é lavar do avesso.</p></div>
         </details>
         <details>
           <summary>Consigo fazer para empresa?</summary>
-          <p>Fazemos brinde corporativo com logo, kit de boas-vindas e lembrancinha de evento. Manda a quantidade e a arte no WhatsApp que a gente monta o orçamento.</p>
+          <div class="faq-resposta"><p>Fazemos brinde corporativo com logo, kit de boas-vindas e lembrancinha de evento. Manda a quantidade e a arte no WhatsApp que a gente monta o orçamento.</p></div>
         </details>
       </div>
     </div>
@@ -1853,10 +1881,31 @@ p{margin:0}
     pintarCores();
   }
 
+  /* troca de produto com cross-fade em vez de corte seco — some a prévia
+     atual, só então troca o estado e revela a nova já com render() feito */
+  function trocarProduto(novo, aoRenderizar){
+    var mesmoProduto = (novo === estado.produto);
+    var atual = mesmoProduto ? null : $("#svg-" + estado.produto);
+    if(atual) atual.classList.add("produto-trocando");
+    var aplicar = function(){
+      estado.produto = novo;
+      render();
+      if(!mesmoProduto){
+        var novoEl = $("#svg-" + novo);
+        if(novoEl){
+          novoEl.classList.add("produto-trocando");
+          void novoEl.offsetWidth;
+          novoEl.classList.remove("produto-trocando");
+        }
+      }
+      if(aoRenderizar) aoRenderizar();
+    };
+    if(mesmoProduto){ aplicar(); } else { window.setTimeout(aplicar, 180); }
+  }
+
   $$(".aba").forEach(function(aba){
     aba.addEventListener("click", function(){
-      estado.produto = aba.dataset.produto;
-      render();
+      trocarProduto(aba.dataset.produto);
     });
   });
 
@@ -1874,7 +1923,17 @@ p{margin:0}
     });
   });
 
-  elFrase.addEventListener("input", function(){ estado.frase = elFrase.value; render(); });
+  var campoFrase = elFrase.closest(".campo");
+  elFrase.addEventListener("input", function(){
+    var tinhaAntes = estado.frase.trim().length > 0;
+    estado.frase = elFrase.value;
+    if(!tinhaAntes && estado.frase.trim().length > 0 && campoFrase){
+      campoFrase.classList.remove("campo-pop");
+      void campoFrase.offsetWidth;
+      campoFrase.classList.add("campo-pop");
+    }
+    render();
+  });
   elOcasiao.addEventListener("change", function(){ estado.ocasiao = elOcasiao.value; });
   elQtd.addEventListener("input", function(){
     var v = parseInt(elQtd.value, 10);
@@ -1899,15 +1958,15 @@ p{margin:0}
 
   $$(".escolher").forEach(function(b){
     b.addEventListener("click", function(){
-      estado.produto = b.dataset.ir;
       estado.cor = b.dataset.cor;
-      render();
-      if(b.dataset.direto){
-        window.open(linkPedido(), "_blank", "noopener");
-        return;
-      }
-      document.getElementById("palco").scrollIntoView({behavior:"smooth", block:"start"});
-      setTimeout(function(){ elFrase.focus({preventScroll:true}); }, 500);
+      trocarProduto(b.dataset.ir, function(){
+        if(b.dataset.direto){
+          window.open(linkPedido(), "_blank", "noopener");
+          return;
+        }
+        document.getElementById("palco").scrollIntoView({behavior:"smooth", block:"start"});
+        setTimeout(function(){ elFrase.focus({preventScroll:true}); }, 500);
+      });
     });
   });
 
@@ -1943,6 +2002,51 @@ p{margin:0}
   $("#pedido-topo").href = linkSimples;
   $("#pedido-topo").target = "_blank";
   $("#pedido-topo").rel = "noopener";
+
+  /* faq com altura animada: o <details> nativo esconde o conteúdo fechado
+     de um jeito que não dá pra animar só com CSS (o Chromium aplica um
+     content-visibility interno nele), então controla a transição por JS,
+     mantendo o open/close nativo pra acessibilidade e teclado */
+  $$(".faq details").forEach(function(det){
+    var resposta = det.querySelector(".faq-resposta");
+    var summary = det.querySelector("summary");
+    if(!resposta || !summary) return;
+    resposta.style.maxHeight = det.hasAttribute("open") ? "none" : "0px";
+    var animando = false;
+    summary.addEventListener("click", function(e){
+      e.preventDefault();
+      if(animando) return;
+      var abrindo = !det.hasAttribute("open");
+      animando = true;
+      if(abrindo){
+        det.setAttribute("open", "");
+        resposta.style.maxHeight = "0px";
+        void resposta.offsetHeight;
+        requestAnimationFrame(function(){
+          resposta.style.maxHeight = resposta.scrollHeight + "px";
+        });
+      } else {
+        resposta.style.maxHeight = resposta.scrollHeight + "px";
+        void resposta.offsetHeight;
+        requestAnimationFrame(function(){
+          resposta.style.maxHeight = "0px";
+        });
+      }
+      var tempoLimite;
+      var aoTerminar = function(ev){
+        if(ev && (ev.target !== resposta || ev.propertyName !== "max-height")) return;
+        resposta.removeEventListener("transitionend", aoTerminar);
+        clearTimeout(tempoLimite);
+        animando = false;
+        if(abrindo){ resposta.style.maxHeight = "none"; }
+        else { det.removeAttribute("open"); }
+      };
+      resposta.addEventListener("transitionend", aoTerminar);
+      /* com "reduzir movimento" ativado a transição some e o transitionend
+         nunca dispara — sem isso o acordeão travaria depois do 1º clique */
+      tempoLimite = setTimeout(aoTerminar, 450);
+    });
+  });
 
   var topo = $(".topo");
   function marcarRolagem(){
