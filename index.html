@@ -304,6 +304,9 @@ p{margin:0}
   background:var(--moldura);padding:9px;border-radius:6px;
   box-shadow:0 28px 42px -26px rgba(var(--sombra),.65);
 }
+/* essa foto é do quebra-cabeça inteiro fotografado — mantém o formato
+   retangular real dela em vez de cortar pra caber no 4:5 das outras */
+.produto-linha-foto img.foto-retangular{aspect-ratio:auto}
 .produto-linha-texto{flex:1;min-width:0}
 .produto-linha-texto h3{font-size:1.6rem}
 .produto-linha-texto p:not(.rotulo){margin-top:12px;font-size:1rem;color:var(--tinta-suave);max-width:52ch}
@@ -990,7 +993,7 @@ p{margin:0}
 
         <article class="produto-linha">
           <div class="produto-linha-foto">
-            <img src="img-jpg-quebracabeca-66596364e0d3.jpg" alt="Quebra-cabeça personalizado com fórmulas de matemática" width="766" height="567" loading="lazy">
+            <img class="foto-retangular" src="img-jpg-quebracabeca-66596364e0d3.jpg" alt="Quebra-cabeça personalizado com fórmulas de matemática" width="766" height="567" loading="lazy">
           </div>
           <div class="produto-linha-texto">
             <p class="rotulo">Quebra-cabeça</p>
