@@ -314,6 +314,15 @@ p{margin:0}
 .produto-linha-texto h3{font-size:1.6rem}
 .produto-linha-texto p:not(.rotulo){margin-top:12px;font-size:1rem;color:var(--tinta-suave);max-width:52ch}
 .produto-linha .preco{font-family:var(--display);font-size:1.25rem;color:var(--rosa-escuro);margin-top:14px}
+
+/* "perfeito para" — camada secundária de identificação, entre a descrição e o preço/CTA */
+.perfeito-para{margin-top:13px;display:flex;flex-direction:column;gap:4px}
+.perfeito-para .pp-rotulo{font-size:.66rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--tinta-fraca)}
+.perfeito-para .pp-lista{display:flex;flex-wrap:wrap;column-gap:12px;row-gap:3px;list-style:none;margin:0;padding:0;font-size:.86rem;color:var(--tinta-suave)}
+.perfeito-para .pp-lista li{white-space:nowrap;position:relative}
+.perfeito-para .pp-lista li:not(:first-child){padding-left:12px}
+.perfeito-para .pp-lista li:not(:first-child)::before{content:"·";position:absolute;left:0;color:var(--tinta-fraca)}
+
 .produto-linha-texto > .escolher{
   margin-top:16px;background:none;border:none;padding:0;cursor:pointer;
   font-family:var(--corpo);font-weight:700;font-size:.95rem;color:var(--tinta-titulo);
@@ -614,6 +623,8 @@ p{margin:0}
   .dupla{grid-template-columns:1fr}
   .abas{gap:12px}
   .aba .anel{width:46px;height:46px}
+  .perfeito-para .pp-lista{font-size:.82rem;column-gap:9px}
+  .perfeito-para .pp-lista li:not(:first-child){padding-left:10px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important}
@@ -1039,6 +1050,10 @@ p{margin:0}
             <p class="rotulo">Canecas</p>
             <h3>A clássica que nunca falha</h3>
             <p>Foto, frase, logo ou os três juntos. Vai na máquina de lavar e no micro-ondas.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>❤️ Namorado(a)</li><li>👩‍👦 Mãe</li><li>🎓 Formatura</li><li>🎂 Aniversário</li></ul>
+            </div>
             <div class="produto-opcoes">
               <button class="produto-opcao escolher" data-ir="caneca" data-cor="branca"><span>Branca</span><strong>R$ 30</strong></button>
               <button class="produto-opcao escolher" data-ir="caneca" data-cor="magica"><span>Mágica — revela a foto no calor</span><strong>R$ 50</strong></button>
@@ -1054,6 +1069,10 @@ p{margin:0}
             <p class="rotulo">Camisetas</p>
             <h3>Camiseta personalizada</h3>
             <p>Só em branco e tons claros, pra estampa sair bem nítida. Do P ao GG, adulto e infantil.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>👭 Despedida de solteira</li><li>🎉 Turma de amigos</li><li>👨‍👩‍👧 Família</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="camiseta" data-cor="branca">Montar a minha</button>
           </div>
@@ -1067,6 +1086,10 @@ p{margin:0}
             <p class="rotulo">Almofadas</p>
             <h3>Almofada 40x40</h3>
             <p>Capa em tecido macio com enchimento incluso. Presente que fica à vista todo dia no sofá.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>❤️ Casal</li><li>🐶 Pet</li><li>👨‍👩‍👧 Família</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="almofada" data-cor="branca">Montar a minha</button>
           </div>
@@ -1080,6 +1103,10 @@ p{margin:0}
             <p class="rotulo">Azulejo</p>
             <h3>Quadro azulejo com suporte</h3>
             <p>Foto estilo polaroid, código do Spotify ou recado de parabéns. Já vai com o suporte de mesa.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>🎓 Formatura</li><li>💍 Casamento</li><li>🏢 Empresa</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="azulejo" data-cor="padrao">Montar o meu</button>
           </div>
@@ -1093,6 +1120,10 @@ p{margin:0}
             <p class="rotulo">Quebra-cabeça</p>
             <h3>Quebra-cabeça personalizado</h3>
             <p>200 peças com a sua foto inteira. Vem numa caixinha própria, ótimo pra fazer junto.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>🎓 Formatura</li><li>👨‍👩‍👧 Família</li><li>🎁 Amigo secreto</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="quebracabeca" data-cor="padrao">Montar o meu</button>
           </div>
@@ -1106,6 +1137,10 @@ p{margin:0}
             <p class="rotulo">Mouse Pad</p>
             <h3>Mouse pad personalizado</h3>
             <p>30x25cm, base emborrachada antiderrapante. Sua foto cobrindo o mouse pad inteiro.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>💼 Home office</li><li>👩‍💻 Colega de trabalho</li><li>🎁 Amigo secreto</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="mousepad" data-cor="padrao">Montar o meu</button>
           </div>
@@ -1119,6 +1154,10 @@ p{margin:0}
             <p class="rotulo">Body de Bebê</p>
             <h3>Body de bebê</h3>
             <p>100% algodão, do RN ao 1 ano. Uma lembrancinha fofa pra chá de bebê ou nascimento.</p>
+            <div class="perfeito-para">
+              <span class="pp-rotulo">Perfeito para</span>
+              <ul class="pp-lista"><li>🍼 Chá de bebê</li><li>👶 Recém-nascido</li><li>🎀 Chá revelação</li></ul>
+            </div>
             <div class="preco">Sob consulta</div>
             <button class="escolher" data-ir="body" data-cor="branco">Montar a minha</button>
           </div>
