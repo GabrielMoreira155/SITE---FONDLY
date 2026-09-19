@@ -585,11 +585,6 @@ p{margin:0}
 .contador-frase.perto{color:var(--rosa-escuro)}
 .contador-frase.limite{color:#E8708A}
 
-/* scroll-snap bem leve, só desktop, só entre as seções principais */
-@media (min-width:941px) and (prefers-reduced-motion:no-preference){
-  html{scroll-snap-type:y proximity}
-  .hero,.secao{scroll-snap-align:start}
-}
 
 @media (max-width:940px){
   .hero .wrap{grid-template-columns:1fr;gap:36px;grid-template-areas:"intro" "palco" "form"}
@@ -624,7 +619,7 @@ p{margin:0}
   *{animation:none!important;transition:none!important}
   .revela{opacity:1;transform:none}
   .portfolio-grade .portfolio-item,.passos .passo,.fitas .fita{opacity:1!important;transform:none!important}
-  html{scroll-behavior:auto;scroll-snap-type:none}
+  html{scroll-behavior:auto}
   .particula{display:none}
   .ocasioes::before{animation:none;opacity:.5}
 }
@@ -1068,7 +1063,7 @@ p{margin:0}
 
         <article class="produto-linha">
           <div class="produto-linha-foto">
-            <img src="img-jpg-almofada-74885fe8be1d.jpg" alt="Almofada personalizada com escudo do Botafogo" width="725" height="730" loading="lazy">
+            <img class="foto-retangular" src="img-jpg-almofada-74885fe8be1d.jpg" alt="Almofada personalizada com escudo do Botafogo" width="725" height="730" loading="lazy">
           </div>
           <div class="produto-linha-texto">
             <p class="rotulo">Almofadas</p>
