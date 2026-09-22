@@ -364,6 +364,31 @@ p{margin:0}
 .portfolio-item:hover img{transform:scale(1.03)}
 .portfolio-item figcaption{padding:10px 6px 14px;font-family:var(--display);font-style:italic;font-size:.92rem;color:var(--tinta-titulo);text-align:center}
 
+/* carrossel — experimento: mostrar mais de uma foto real do mesmo produto
+   num único cartão do portfólio, sem bagunçar o masonry (altura fixa) */
+.portfolio-carrossel .pc-janela{position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:2px}
+.portfolio-carrossel .pc-trilho{display:flex;height:100%;transition:transform .45s var(--ease-suave)}
+.portfolio-carrossel .pc-trilho img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;border-radius:0;margin:0;-webkit-user-drag:none;user-select:none}
+.portfolio-carrossel:hover img{transform:none}
+.pc-seta{
+  position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;
+  border:none;background:color-mix(in srgb, var(--porcelana) 55%, transparent);color:#fff;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1.1rem;line-height:1;
+  opacity:0;transition:opacity var(--dur-rapido) ease,background var(--dur-rapido) ease;z-index:2;
+}
+.pc-seta:hover{background:color-mix(in srgb, var(--porcelana) 80%, transparent)}
+.pc-anterior{left:8px}
+.pc-proxima{right:8px}
+@media (hover:hover) and (pointer:fine){
+  .portfolio-carrossel .pc-janela:hover .pc-seta{opacity:1}
+}
+@media (hover:none){
+  .pc-seta{display:none}
+}
+.pc-pontos{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:6px;z-index:2}
+.pc-ponto{width:6px;height:6px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.55);cursor:pointer;transition:background var(--dur-rapido) ease,transform var(--dur-rapido) ease}
+.pc-ponto[aria-current="true"]{background:#fff;transform:scale(1.3)}
+
 /* passos */
 .passos{display:grid;grid-template-columns:repeat(4,1fr);gap:26px;counter-reset:p}
 .passo{position:relative;padding-top:54px}
@@ -1198,8 +1223,21 @@ p{margin:0}
         <p>Fotos de pedidos reais — a sua pode ser a próxima.</p>
       </div>
       <div class="portfolio-grade revela">
-        <figure class="portfolio-item">
-          <img src="img-jpg-1-a0c2d151f597.jpg" alt="Caneca personalizada com foto de criança abraçando o Papai Noel">
+        <figure class="portfolio-item portfolio-carrossel">
+          <div class="pc-janela">
+            <div class="pc-trilho">
+              <img src="img-jpg-1-a0c2d151f597.jpg" alt="Caneca personalizada com foto de criança abraçando o Papai Noel">
+              <img src="img-jpg-canecaprofessora-2b6c91af7d3e.jpg" alt="Canecas personalizadas com ilustração de professora, presente para o Dia dos Professores">
+              <img src="img-jpg-canecalogo-9a417ec53b08.jpg" alt="Canecas personalizadas com logotipo Taissa Oliveira Estética e Bem Estar, para empresas">
+            </div>
+            <button class="pc-seta pc-anterior" type="button" aria-label="Foto anterior">‹</button>
+            <button class="pc-seta pc-proxima" type="button" aria-label="Próxima foto">›</button>
+            <div class="pc-pontos" role="tablist" aria-label="Selecionar foto">
+              <button class="pc-ponto" type="button" aria-label="Foto 1" aria-current="true"></button>
+              <button class="pc-ponto" type="button" aria-label="Foto 2"></button>
+              <button class="pc-ponto" type="button" aria-label="Foto 3"></button>
+            </div>
+          </div>
           <figcaption>Caneca</figcaption>
         </figure>
         <figure class="portfolio-item">
@@ -2383,6 +2421,61 @@ p{margin:0}
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function(){ elToast.classList.remove("visivel"); }, 2200);
   }
+
+  // carrossel do portfólio (experimento) — várias fotos reais do mesmo produto num só cartão
+  $$(".portfolio-carrossel").forEach(function(item){
+    var trilho = item.querySelector(".pc-trilho");
+    var imgs = Array.prototype.slice.call(item.querySelectorAll(".pc-trilho img"));
+    var pontos = Array.prototype.slice.call(item.querySelectorAll(".pc-ponto"));
+    var total = imgs.length;
+    if(total < 2) return;
+    var indice = 0;
+
+    function irPara(novo){
+      indice = (novo + total) % total;
+      trilho.style.transform = "translateX(-" + (indice * 100) + "%)";
+      pontos.forEach(function(p, i){ p.setAttribute("aria-current", i === indice ? "true" : "false"); });
+    }
+
+    var btnAnterior = item.querySelector(".pc-anterior");
+    var btnProxima = item.querySelector(".pc-proxima");
+    if(btnAnterior) btnAnterior.addEventListener("click", function(e){ e.preventDefault(); irPara(indice - 1); });
+    if(btnProxima) btnProxima.addEventListener("click", function(e){ e.preventDefault(); irPara(indice + 1); });
+    pontos.forEach(function(p, i){ p.addEventListener("click", function(e){ e.preventDefault(); irPara(i); }); });
+
+    // arraste/swipe por toque ou mouse
+    var janela = item.querySelector(".pc-janela");
+    var arrastando = false, xInicial = 0, deltaX = 0;
+    imgs.forEach(function(img){ img.draggable = false; });
+    janela.addEventListener("dragstart", function(e){ e.preventDefault(); });
+    janela.addEventListener("pointerdown", function(e){
+      if(e.target.closest(".pc-seta, .pc-ponto")) return;
+      arrastando = true; xInicial = e.clientX; deltaX = 0;
+      trilho.style.transition = "none";
+      janela.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    janela.addEventListener("pointermove", function(e){
+      if(!arrastando) return;
+      deltaX = e.clientX - xInicial;
+      var pctBase = -(indice * 100);
+      var pctArraste = (deltaX / janela.clientWidth) * 100;
+      trilho.style.transform = "translateX(" + (pctBase + pctArraste) + "%)";
+    });
+    function soltarArraste(){
+      if(!arrastando) return;
+      arrastando = false;
+      trilho.style.transition = "";
+      if(Math.abs(deltaX) > janela.clientWidth * 0.18){
+        irPara(indice + (deltaX < 0 ? 1 : -1));
+      } else {
+        irPara(indice);
+      }
+    }
+    janela.addEventListener("pointerup", soltarArraste);
+    janela.addEventListener("pointercancel", soltarArraste);
+    janela.addEventListener("pointerleave", function(){ if(arrastando) soltarArraste(); });
+  });
 })();
 </script>
 </body>
