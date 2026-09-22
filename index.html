@@ -367,6 +367,7 @@ p{margin:0}
 /* carrossel — experimento: mostrar mais de uma foto real do mesmo produto
    num único cartão do portfólio, sem bagunçar o masonry (altura fixa) */
 .portfolio-carrossel .pc-janela{position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:2px}
+.portfolio-carrossel.pc-paisagem .pc-janela{aspect-ratio:4/3}
 .portfolio-carrossel .pc-trilho{display:flex;height:100%;transition:transform .45s var(--ease-suave)}
 .portfolio-carrossel .pc-trilho img{flex:0 0 100%;width:100%;height:100%;object-fit:cover;border-radius:0;margin:0;-webkit-user-drag:none;user-select:none}
 .portfolio-carrossel:hover img{transform:none}
@@ -1248,7 +1249,7 @@ p{margin:0}
           <img src="img-jpg-3-57136e157ff5.jpg" alt="Azulejo personalizado Sim Piririm Kids para festa infantil">
           <figcaption>Azulejos</figcaption>
         </figure>
-        <figure class="portfolio-item portfolio-carrossel">
+        <figure class="portfolio-item portfolio-carrossel pc-paisagem">
           <div class="pc-janela">
             <div class="pc-trilho">
               <img src="img-jpg-quebracabeca-66596364e0d3.jpg" alt="Quebra-cabeça personalizado com fórmulas de matemática">
@@ -1273,8 +1274,21 @@ p{margin:0}
           <img src="img-jpg-almofada-74885fe8be1d.jpg" alt="Almofada personalizada com escudo do Botafogo">
           <figcaption>Almofada</figcaption>
         </figure>
-        <figure class="portfolio-item">
-          <img src="img-jpg-toalhinha2-3f8ba7125dec.jpg" alt="Toalhinha de bebê personalizada com o nome Olívia">
+        <figure class="portfolio-item portfolio-carrossel pc-paisagem">
+          <div class="pc-janela">
+            <div class="pc-trilho">
+              <img src="img-jpg-toalhinha2-3f8ba7125dec.jpg" alt="Toalhinha de bebê personalizada com o nome Olívia">
+              <img src="img-jpg-toalhinhayasmin-7c92e4a163fb.jpg" alt="Toalhinha de bebê personalizada com o nome Yasmin">
+              <img src="img-jpg-toalhinhaelias-3f81d9c657ea.jpg" alt="Toalhinha de bebê personalizada com o nome Elias e a Patrulha Canina">
+            </div>
+            <button class="pc-seta pc-anterior" type="button" aria-label="Foto anterior">‹</button>
+            <button class="pc-seta pc-proxima" type="button" aria-label="Próxima foto">›</button>
+            <div class="pc-pontos" role="tablist" aria-label="Selecionar foto">
+              <button class="pc-ponto" type="button" aria-label="Foto 1" aria-current="true"></button>
+              <button class="pc-ponto" type="button" aria-label="Foto 2"></button>
+              <button class="pc-ponto" type="button" aria-label="Foto 3"></button>
+            </div>
+          </div>
           <figcaption>Toalhinha</figcaption>
         </figure>
         <figure class="portfolio-item">
