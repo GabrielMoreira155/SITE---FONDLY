@@ -113,6 +113,44 @@ p{margin:0}
 }
 .menu a:hover::after,.menu a:focus-visible::after{transform:scaleX(1)}
 
+/* menu hambúrguer — só existe abaixo de 941px, onde o .menu normal some */
+.hamburguer{
+  display:none;width:38px;height:38px;flex:0 0 auto;position:relative;
+  border:none;background:none;cursor:pointer;padding:0;
+}
+.hamburguer span,.hamburguer span::before,.hamburguer span::after{
+  content:"";position:absolute;left:8px;right:8px;height:2px;border-radius:2px;
+  background:var(--tinta-titulo);transition:transform var(--dur-rapido) ease,opacity var(--dur-rapido) ease,background var(--dur-rapido) ease;
+}
+.hamburguer span{top:18px}
+.hamburguer span::before{top:-7px}
+.hamburguer span::after{top:7px}
+.hamburguer[aria-expanded="true"] span{background:transparent}
+.hamburguer[aria-expanded="true"] span::before{transform:translateY(7px) rotate(45deg);background:var(--rosa-escuro)}
+.hamburguer[aria-expanded="true"] span::after{transform:translateY(-7px) rotate(-45deg);background:var(--rosa-escuro)}
+
+.menu-movel{
+  position:absolute;top:100%;left:0;right:0;z-index:39;
+  display:flex;flex-direction:column;padding:6px 22px 16px;
+  background:color-mix(in srgb, var(--porcelana) 97%, transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--linha);
+  box-shadow:0 20px 34px -24px rgba(var(--sombra),.6);
+  max-height:0;overflow:hidden;opacity:0;
+  transition:max-height .35s var(--ease-suave),opacity .3s ease;
+}
+.menu-movel.aberto{max-height:340px;opacity:1}
+.menu-movel a{
+  padding:14px 2px;color:var(--tinta-titulo);text-decoration:none;
+  font-size:1.02rem;font-weight:600;border-bottom:1px solid var(--linha);
+}
+.menu-movel a:last-child{border-bottom:none}
+.menu-movel a:hover,.menu-movel a:focus-visible{color:var(--rosa-escuro)}
+
+@media (max-width:940px){
+  .hamburguer{display:block}
+  .btn-topo{margin-left:auto}
+}
+
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
   font-family:var(--corpo);font-size:.98rem;font-weight:600;
@@ -678,7 +716,16 @@ p{margin:0}
       <a href="#duvidas">Dúvidas</a>
     </nav>
     <a class="btn btn-cheio btn-topo" id="pedido-topo" href="#montar">Fazer meu pedido</a>
+    <button class="hamburguer" id="hamburguer" type="button" aria-expanded="false" aria-controls="menu-movel" aria-label="Abrir menu">
+      <span></span>
+    </button>
   </div>
+  <nav class="menu-movel" id="menu-movel">
+    <a href="#montar">Monte o seu</a>
+    <a href="#produtos">Produtos</a>
+    <a href="#funciona">Como funciona</a>
+    <a href="#duvidas">Dúvidas</a>
+  </nav>
 </header>
 
 <main id="topo">
@@ -2379,6 +2426,40 @@ p{margin:0}
   }
   window.addEventListener("scroll", marcarRolagem, {passive:true});
   marcarRolagem();
+
+  // menu hambúrguer (mobile/tablet)
+  (function(){
+    var botao = $("#hamburguer");
+    var painel = $("#menu-movel");
+    if(!botao || !painel) return;
+    function fechar(){
+      botao.setAttribute("aria-expanded", "false");
+      painel.classList.remove("aberto");
+    }
+    function alternar(){
+      var abrindo = botao.getAttribute("aria-expanded") !== "true";
+      botao.setAttribute("aria-expanded", abrindo ? "true" : "false");
+      painel.classList.toggle("aberto", abrindo);
+    }
+    botao.addEventListener("click", function(e){
+      e.stopPropagation();
+      alternar();
+    });
+    painel.querySelectorAll("a").forEach(function(a){
+      a.addEventListener("click", fechar);
+    });
+    document.addEventListener("click", function(e){
+      if(painel.classList.contains("aberto") && !painel.contains(e.target) && e.target !== botao){
+        fechar();
+      }
+    });
+    document.addEventListener("keydown", function(e){
+      if(e.key === "Escape") fechar();
+    });
+    window.addEventListener("resize", function(){
+      if(window.innerWidth > 940) fechar();
+    });
+  })();
 
   if("IntersectionObserver" in window){
     var obs = new IntersectionObserver(function(entradas){
