@@ -2472,6 +2472,24 @@ p{margin:0}
     $$(".revela").forEach(function(el){ el.classList.add("visivel"); });
   }
 
+  /* ao navegar por um link de âncora (menu, "monte o seu", CTA final...), a
+     seção de destino não deve ficar "apagando" enquanto o fade de revelação
+     roda sozinho — já mostra tudo visível assim que o clique acontece */
+  document.addEventListener("click", function(e){
+    var link = e.target.closest('a[href^="#"]');
+    if(!link) return;
+    var id = link.getAttribute("href").slice(1);
+    if(!id) return;
+    var alvo = document.getElementById(id);
+    if(!alvo) return;
+    var elementos = alvo.classList.contains("revela") ? [alvo] : [];
+    elementos = elementos.concat(Array.prototype.slice.call(alvo.querySelectorAll(".revela")));
+    elementos.forEach(function(el){
+      el.classList.add("visivel");
+      if(typeof obs !== "undefined" && obs) obs.unobserve(el);
+    });
+  });
+
   aplicarAreasImpressao();
   render();
   if(Caneca3D) Caneca3D.pronto();
