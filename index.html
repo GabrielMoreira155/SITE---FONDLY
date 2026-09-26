@@ -2490,6 +2490,23 @@ p{margin:0}
     });
   });
 
+  /* "Monte o seu" no desktop: o #palco é sticky e já nasce colado no topo
+     (mesma linha da introdução do hero), então o salto nativo pra ele quase
+     não rola a página — sobra título/foto de intro na tela e nada da
+     montagem em si. Rola um pouco mais, até o formulário (frase/foto/preço),
+     só nesse breakpoint; no mobile/tablet o salto padrão pro #palco já cai
+     certinho, então não mexe lá. */
+  $$('a[href="#palco"]').forEach(function(link){
+    link.addEventListener("click", function(e){
+      if(!window.matchMedia("(min-width:941px)").matches) return;
+      var alvo = $(".montagem");
+      if(!alvo) return;
+      e.preventDefault();
+      var y = alvo.getBoundingClientRect().top + window.scrollY - 110;
+      window.scrollTo({top: y, behavior: "smooth"});
+    });
+  });
+
   aplicarAreasImpressao();
   render();
   if(Caneca3D) Caneca3D.pronto();
