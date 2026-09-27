@@ -1,0 +1,596 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<link href="fonts.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#1A1222; --plum:#241A2E; --rosa:#EF9FBC; --rosa2:#F4B6CD; --lilas:#DCB3EA;
+  --ouro:#EEC25F; --tinta:#F6ECF3; --suave:#CBB4CF; --fraca:#967F9E; --linha:#4A3A54;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;overflow:hidden;background:var(--bg)}
+body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
+
+/* fundo: brilho rosado no topo + textura diagonal sutil, como o vídeo de referência */
+#bg{position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 70% 38% at 50% 0%, rgba(239,159,188,.20), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 15% 85%, rgba(138,95,158,.22), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 90% 60%, rgba(92,54,112,.35), transparent 70%),
+    linear-gradient(180deg,#221830 0%,#1A1222 45%,#150E1C 100%);}
+#bg::after{content:"";position:absolute;inset:0;opacity:.07;
+  background:repeating-linear-gradient(135deg,#fff 0 1px,transparent 1px 7px);}
+#glow{position:absolute;left:50%;top:-260px;width:1100px;height:700px;transform:translateX(-50%);
+  background:radial-gradient(closest-side,rgba(239,159,188,.18),transparent);pointer-events:none}
+
+/* legendas */
+#cap{position:absolute;left:0;right:0;top:34px;text-align:center;z-index:30}
+#marca{display:flex;align-items:center;justify-content:center;gap:16px;height:84px}
+#marca img{height:84px;width:auto}
+#marca .tipo{font:700 17px/1 Nunito;letter-spacing:.42em;color:var(--rosa);text-transform:uppercase;padding-top:10px}
+#kicker{margin-top:14px;font:800 16px/1 Nunito;letter-spacing:.34em;text-transform:uppercase;color:var(--ouro);opacity:.9}
+#tituloBox{position:relative;height:150px;margin-top:14px}
+.tit{position:absolute;left:0;right:0;top:0;padding:0 40px}
+.tit h1{font:400 80px/1 "Bebas Neue";letter-spacing:.02em;color:var(--tinta);white-space:nowrap}
+.tit h1 em{font-style:normal;color:var(--rosa)}
+.tit p{margin-top:12px;font:600 28px/1.25 Nunito;color:var(--suave)}
+
+/* dispositivos */
+.dev{position:absolute;left:0;top:0;transform-origin:0 0;z-index:10}
+.phone{width:418px;height:872px;border-radius:64px;padding:14px;
+  background:linear-gradient(145deg,#3a2d44,#120c17 40%,#2a1f33);
+  box-shadow:0 0 0 2px #56465f inset,0 0 0 1px #0b070e,0 50px 90px rgba(0,0,0,.6),0 0 120px rgba(239,159,188,.10)}
+.phone .tela{position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#241A2E}
+.phone .sbar{position:absolute;left:0;top:0;right:0;height:44px;background:#241A2E;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 36px;font:700 15px Nunito;color:#F6ECF3}
+.phone .sbar .ilha{position:absolute;left:50%;top:10px;width:118px;height:32px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.phone .sbar .ic{display:flex;gap:6px;align-items:center}
+.phone iframe{position:absolute;left:0;top:44px;width:390px;height:800px;border:0;background:#241A2E}
+.phone .home{position:absolute;left:50%;bottom:8px;width:134px;height:5px;border-radius:3px;background:rgba(255,255,255,.55);transform:translateX(-50%);z-index:6}
+
+.tablet{width:860px;height:1220px;border-radius:46px;padding:20px;
+  background:linear-gradient(145deg,#3a2d44,#120c17 40%,#2a1f33);
+  box-shadow:0 0 0 2px #56465f inset,0 40px 80px rgba(0,0,0,.55)}
+.tablet .tela{position:relative;width:820px;height:1180px;border-radius:26px;overflow:hidden;background:#241A2E}
+.tablet iframe{width:820px;height:1180px;border:0;display:block}
+
+.laptop{width:1472px;height:1000px}
+.laptop .tampa{width:1472px;height:948px;border-radius:30px 30px 8px 8px;padding:16px 16px 32px;
+  background:linear-gradient(180deg,#2d2336,#150f1a);box-shadow:0 0 0 2px #56465f inset,0 40px 80px rgba(0,0,0,.55)}
+.laptop .tela{width:1440px;height:900px;overflow:hidden;border-radius:6px;background:#241A2E}
+.laptop iframe{width:1440px;height:900px;border:0;display:block}
+.laptop .base{margin:0 auto;width:1640px;margin-left:-84px;height:36px;border-radius:0 0 30px 30px;
+  background:linear-gradient(180deg,#4b3d55,#241a2c);box-shadow:0 18px 40px rgba(0,0,0,.5)}
+.laptop .base::before{content:"";display:block;margin:0 auto;width:220px;height:12px;border-radius:0 0 12px 12px;background:#1a1220}
+
+/* dedo */
+#finger{position:absolute;left:0;top:0;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;
+  background:rgba(255,255,255,.34);border:3px solid rgba(255,255,255,.85);box-shadow:0 6px 24px rgba(0,0,0,.35);
+  z-index:40;opacity:0;pointer-events:none}
+.ripple{position:absolute;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;border:4px solid rgba(255,255,255,.9);z-index:39;pointer-events:none}
+
+/* pílula de aviso (tipo "Evento criado no Google Agenda" da referência) */
+#pill{position:absolute;left:50%;top:0;z-index:45;display:flex;align-items:center;gap:12px;white-space:nowrap;
+  padding:16px 28px;border-radius:40px;background:#fff;color:#2C2038;font:800 24px Nunito;
+  box-shadow:0 14px 40px rgba(0,0,0,.4);opacity:0;transform:translate(-50%,0)}
+#pill .ico{font-size:26px}
+
+/* interlúdio */
+#inter{position:absolute;left:0;right:0;top:330px;bottom:0;z-index:35;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(16,10,22,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);opacity:0}
+#inter .anel{width:170px;height:170px;border-radius:50%;border:4px solid var(--ouro);display:flex;align-items:center;justify-content:center;position:relative}
+#inter .anel svg{width:84px;height:84px;stroke:var(--ouro);fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+#inter .anel .gira{position:absolute;inset:-14px;border-radius:50%;border:3px solid transparent;border-top-color:var(--rosa)}
+#inter h2{margin-top:44px;font:400 96px/1 "Bebas Neue";letter-spacing:.04em;color:var(--ouro)}
+#inter p{margin-top:22px;font:800 22px Nunito;letter-spacing:.34em;color:var(--suave);text-transform:uppercase}
+
+/* intro e encerramento */
+#intro,#outro{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+#intro{background:radial-gradient(ellipse 80% 50% at 50% 45%,#2c2038,#140d1a)}
+#intro img{width:420px}
+#intro .sub{margin-top:26px;font:700 22px Nunito;letter-spacing:.5em;color:var(--rosa);text-transform:uppercase;padding-left:.5em}
+#url{margin-top:70px;display:flex;align-items:center;gap:14px;padding:22px 34px;border-radius:50px;border:2px solid var(--linha);background:rgba(46,35,56,.8);font:700 32px Nunito;color:var(--tinta);min-width:640px}
+#url .cad{width:26px;height:26px;border-radius:50%;border:3px solid var(--rosa);flex:none}
+#url .cursor{display:inline-block;width:3px;height:34px;background:var(--rosa);margin-left:2px;vertical-align:middle}
+#intro .ver{margin-top:44px;font:400 64px/1 "Bebas Neue";letter-spacing:.06em;color:var(--tinta)}
+
+#outro{background:radial-gradient(ellipse 80% 50% at 50% 40%,rgba(44,32,56,.97),rgba(16,10,22,.99));opacity:0}
+#outro .selo{padding:14px 30px;border:2px solid var(--ouro);color:var(--ouro);font:800 24px Nunito;letter-spacing:.42em;padding-right:calc(30px - .42em)}
+#outro h2{margin-top:50px;font:400 92px/1 "Bebas Neue";letter-spacing:.02em;white-space:nowrap}
+#outro .serif{margin-top:8px;font:italic 400 82px/1.1 Fraunces;color:var(--rosa)}
+#outro .desc{margin-top:40px;font:600 32px/1.45 Nunito;color:var(--suave)}
+#outro .logo{margin-top:80px;width:230px}
+#outro .site{margin-top:18px;font:800 30px Nunito;color:var(--tinta);letter-spacing:.02em}
+
+/* chips do computador */
+#chips{position:absolute;left:0;right:0;top:1300px;z-index:20;display:flex;flex-direction:column;align-items:center;gap:22px}
+.chip{display:flex;align-items:center;gap:18px;padding:22px 34px;border-radius:22px;border:1.5px solid var(--linha);
+  background:rgba(46,35,56,.75);font:700 30px Nunito;color:var(--tinta);opacity:0;min-width:640px}
+.chip b{display:inline-flex;width:48px;height:48px;border-radius:50%;align-items:center;justify-content:center;background:var(--rosa);color:#2C2038;font:800 26px Nunito;flex:none}
+
+/* WhatsApp simulado dentro do celular */
+#wa{position:absolute;left:0;top:44px;width:390px;height:800px;z-index:4;background:#0B141A;transform:translateX(100%);display:flex;flex-direction:column}
+#wa .cab{height:62px;background:#1F2C34;display:flex;align-items:center;gap:10px;padding:0 12px;color:#E9EDEF}
+#wa .cab .av{width:38px;height:38px;border-radius:50%;background:#2C2038 url(logo.png) center/78% no-repeat;border:1px solid #4A3A54}
+#wa .cab .nm{font:700 16px Nunito}
+#wa .cab .st{font:600 12px Nunito;color:#8696A0;margin-top:2px}
+#wa .cab .st.dig{color:#25D366}
+#wa .msgs{flex:1;overflow:hidden;padding:12px 10px;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;
+  background:#0B141A radial-gradient(circle at 20% 30%,rgba(255,255,255,.025) 0 2px,transparent 3px) 0 0/34px 34px}
+#wa .dia{align-self:center;background:#182229;color:#8696A0;font:700 11px Nunito;padding:5px 10px;border-radius:7px;margin-bottom:6px}
+#wa .b{max-width:82%;padding:7px 9px 5px;border-radius:9px;font:500 14.2px/1.38 Nunito;color:#E9EDEF;white-space:pre-wrap;position:relative}
+#wa .b .h{display:block;text-align:right;font:600 10.5px Nunito;color:rgba(233,237,239,.6);margin-top:2px}
+#wa .b.out{align-self:flex-end;background:#005C4B}
+#wa .b.in{align-self:flex-start;background:#202C33}
+#wa .b.out .h::after{content:" ✓✓";color:#53BDEB}
+#wa .dots{align-self:flex-start;background:#202C33;border-radius:9px;padding:10px 14px;display:flex;gap:5px}
+#wa .dots i{width:7px;height:7px;border-radius:50%;background:#8696A0;display:block}
+#wa .bar{display:flex;align-items:flex-end;gap:8px;padding:8px 8px 26px}
+#wa .campo{flex:1;background:#1F2C34;border-radius:22px;padding:10px 14px;font:500 14.2px/1.38 Nunito;color:#E9EDEF;white-space:pre-wrap;max-height:260px;overflow:hidden}
+#wa .send{width:46px;height:46px;border-radius:50%;background:#00A884;display:flex;align-items:center;justify-content:center;flex:none}
+#wa .send svg{width:22px;height:22px;fill:#fff}
+</style></head>
+<body>
+<div id="bg"></div><div id="glow"></div>
+
+<div id="cap">
+  <div id="marca"><img src="logo.png" alt=""><span class="tipo">Sublimados</span></div>
+  <div id="kicker">Site oficial · Presentes personalizados</div>
+  <div id="tituloBox"></div>
+</div>
+
+<div class="dev laptop" id="dLaptop" style="opacity:0">
+  <div class="tampa"><div class="tela"><iframe id="fLaptop" src="site/index.html"></iframe></div></div>
+  <div class="base"></div>
+</div>
+<div class="dev tablet" id="dTablet" style="opacity:0">
+  <div class="tela"><iframe id="fTablet" src="site/index.html"></iframe></div>
+</div>
+<div class="dev phone" id="dPhone">
+  <div class="tela">
+    <div class="sbar"><span>9:41</span><span class="ilha"></span>
+      <span class="ic"><svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1" fill="#fff"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#fff"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff"/></svg>
+      <span style="font-size:13px">5G</span>
+      <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="#fff" fill="none" opacity=".5"/><rect x="2" y="2" width="18" height="9" rx="2" fill="#fff"/><rect x="25" y="4" width="2" height="5" rx="1" fill="#fff" opacity=".5"/></svg></span>
+    </div>
+    <iframe id="fPhone" src="site/index.html"></iframe>
+    <div id="wa">
+      <div class="cab">
+        <svg width="12" height="20" viewBox="0 0 12 20"><path d="M10 2L2 10l8 8" stroke="#E9EDEF" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+        <div class="av"></div>
+        <div><div class="nm">Fondly Sublimados</div><div class="st" id="waSt">online</div></div>
+      </div>
+      <div class="msgs" id="waMsgs"><div class="dia">HOJE</div></div>
+      <div class="bar"><div class="campo" id="waCampo"></div>
+        <div class="send"><svg viewBox="0 0 24 24"><path d="M3 20.5l18-8.5L3 3.5v6.6l12 1.9-12 1.9z"/></svg></div></div>
+    </div>
+    <div class="home"></div>
+  </div>
+</div>
+
+<div id="chips">
+  <div class="chip"><b>1</b>Montagem e prévia lado a lado</div>
+  <div class="chip"><b>2</b>Caneca 3D que gira com o mouse</div>
+  <div class="chip"><b>3</b>Pedido direto no WhatsApp</div>
+</div>
+
+<div id="inter"><div class="anel"><div class="gira"></div><svg id="interIco" viewBox="0 0 24 24"></svg></div><h2 id="interT"></h2><p id="interS"></p></div>
+<div id="pill"><span class="ico" id="pillIco"></span><span id="pillTxt"></span></div>
+<div id="finger"></div>
+
+<div id="intro">
+  <img src="logo.png" alt="">
+  <div class="sub">Sublimados</div>
+  <div id="url"><span class="cad"></span><span id="urlTxt"></span><span class="cursor" id="urlCur"></span></div>
+  <div class="ver">Conheça o site</div>
+</div>
+
+<div id="outro">
+  <div class="selo">VIRTUS APEX</div>
+  <h2>SITE + PEDIDO NO WHATSAPP</h2>
+  <div class="serif">feito sob medida</div>
+  <div class="desc">Vitrine linda, montagem com prévia<br>e o pedido chegando pronto no celular.</div>
+  <img class="logo" src="logo.png" alt="">
+  <div class="site">fondlysublimados.com.br</div>
+</div>
+
+<script>
+/* ================= infraestrutura ================= */
+const $ = s => document.querySelector(s);
+const now = () => performance.now();
+const wait = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const lerp = (a,b,p) => a + (b-a)*p;
+const E = {
+  io: p => p<.5 ? 4*p*p*p : 1 - Math.pow(-2*p+2,3)/2,
+  out: p => 1 - Math.pow(1-p,3),
+  in: p => p*p*p,
+  lin: p => p,
+  back: p => { const c1=1.4, c3=c1+1; return 1 + c3*Math.pow(p-1,3) + c1*Math.pow(p-1,2); }
+};
+function tween(dur, fn, ease=E.io){
+  return new Promise(res => {
+    const t0 = now();
+    fn(0);
+    function f(){ const p = clamp((now()-t0)/dur,0,1); fn(ease(p)); if(p<1) requestAnimationFrame(f); else res(); }
+    requestAnimationFrame(f);
+  });
+}
+window.__events = [];
+let T0 = 0;
+const ev = (type, extra) => window.__events.push(Object.assign({t: now()-T0, type}, extra||{}));
+async function at(ms){ const d = T0 + ms - now(); if(d > 0) await wait(d); }
+
+/* ================= dispositivos ================= */
+function Dev(id, fid){
+  const d = {el: $(id), iframe: $(fid), st: {x:0,y:0,s:1,o:1}};
+  d.apply = () => { d.el.style.transform = `translate(${d.st.x}px,${d.st.y}px) scale(${d.st.s})`; d.el.style.opacity = d.st.o; };
+  d.set = o => { Object.assign(d.st, o); d.apply(); };
+  d.to = (o, dur, ease=E.io) => { const a = Object.assign({}, d.st); return tween(dur, p => { for(const k in o) d.st[k] = lerp(a[k], o[k], p); d.apply(); }, ease); };
+  d.win = () => d.iframe.contentWindow;
+  d.doc = () => d.iframe.contentDocument;
+  d.q = s => d.doc().querySelector(s);
+  d.qa = s => [...d.doc().querySelectorAll(s)];
+  d.k = () => d.iframe.getBoundingClientRect().width / d.iframe.offsetWidth;
+  // ponto do elemento do site em coordenadas do vídeo
+  d.pt = (el, fx=.5, fy=.5) => { const r = el.getBoundingClientRect(), f = d.iframe.getBoundingClientRect(), k = d.k();
+    return {x: f.left + (r.left + r.width*fx)*k, y: f.top + (r.top + r.height*fy)*k}; };
+  d.local = (x,y) => { const f = d.iframe.getBoundingClientRect(), k = d.k(); return {x:(x-f.left)/k, y:(y-f.top)/k}; };
+  d.sy = () => d.win().scrollY;
+  d.scrollTo = (y, dur=1000, ease=E.io) => { const w = d.win(); const y0 = w.scrollY;
+    const max = d.doc().documentElement.scrollHeight - w.innerHeight; y = clamp(y, 0, max);
+    return tween(dur, p => w.scrollTo({top: lerp(y0, y, p), behavior: "instant"}), ease); };
+  d.yOf = (el, off=0) => el.getBoundingClientRect().top + d.win().scrollY - off;
+  d.scrollToEl = (el, off=80, dur=1000, ease) => d.scrollTo(d.yOf(el, off), dur, ease);
+  return d;
+}
+const P = Dev("#dPhone", "#fPhone"), TB = Dev("#dTablet", "#fTablet"), L = Dev("#dLaptop", "#fLaptop");
+const PH = {x:(1080-418*1.72)/2, y:372, s:1.72};
+P.set({x:PH.x, y:1960, s:PH.s, o:1});
+
+/* ================= dedo, pílula, legendas ================= */
+const finger = $("#finger");
+const F = {x:540, y:1200, o:0, s:1};
+const fApply = () => { finger.style.transform = `translate(${F.x}px,${F.y}px) scale(${F.s})`; finger.style.opacity = F.o; };
+fApply();
+function fTo(x, y, dur=450, ease=E.io){ const a = {x:F.x, y:F.y}; return tween(dur, p => { F.x = lerp(a.x,x,p); F.y = lerp(a.y,y,p); fApply(); }, ease); }
+function fShow(v, dur=220){ const a = F.o; return tween(dur, p => { F.o = lerp(a, v?1:0, p); fApply(); }); }
+function ripple(x, y){
+  const r = document.createElement("div"); r.className = "ripple"; document.body.appendChild(r);
+  tween(520, p => { r.style.transform = `translate(${x}px,${y}px) scale(${1+p*1.3})`; r.style.opacity = 1-p; }, E.out).then(() => r.remove());
+}
+async function press(){ ev("tap"); await tween(110, p => { F.s = 1 - .22*p; fApply(); }); ripple(F.x, F.y); await tween(160, p => { F.s = .78 + .22*p; fApply(); }); }
+// toque num elemento do site: move o dedo, aperta e dispara o clique de verdade
+async function tap(dev, el, opts={}){
+  const p = dev.pt(el, opts.fx ?? .5, opts.fy ?? .5);
+  if(F.o < .5){ F.x = p.x + 60; F.y = p.y + 90; fApply(); fShow(1); }
+  await fTo(p.x, p.y, opts.move ?? 480);
+  const pr = press();
+  await wait(100);
+  if(opts.pointer){ ptr(dev, el, "pointerdown", p.x, p.y); ptr(dev, el, "pointerup", p.x, p.y); }
+  el.click();
+  await pr;
+}
+function ptr(dev, el, type, x, y){
+  const l = dev.local(x, y), w = dev.win();
+  el.dispatchEvent(new w.PointerEvent(type, {bubbles:true, cancelable:true, clientX:l.x, clientY:l.y, pointerId:7, pointerType:"touch", isPrimary:true, buttons: type==="pointerup"?0:1}));
+}
+// arrasto contínuo sobre um elemento (caneca 3D, carrossel)
+async function drag(dev, el, pts, dur){
+  const p0 = pts[0];
+  if(F.o < .5){ F.x = p0.x + 50; F.y = p0.y + 80; fApply(); fShow(1); }
+  await fTo(p0.x, p0.y, 380);
+  await tween(110, p => { F.s = 1 - .15*p; fApply(); });
+  ptr(dev, el, "pointerdown", p0.x, p0.y); ev("drag");
+  const seg = pts.length - 1;
+  await tween(dur, p => {
+    const q = p*seg, i = Math.min(seg-1, Math.floor(q)), f = q - i;
+    const e = E.io(f);
+    F.x = lerp(pts[i].x, pts[i+1].x, e); F.y = lerp(pts[i].y, pts[i+1].y, e); fApply();
+    ptr(dev, el, "pointermove", F.x, F.y);
+  }, E.lin);
+  ptr(dev, el, "pointerup", F.x, F.y);
+  await tween(140, p => { F.s = .85 + .15*p; fApply(); });
+}
+async function typeInto(dev, el, text, cps=11){
+  const w = dev.win();
+  for(const ch of [...text]){
+    el.value += ch; el.dispatchEvent(new w.Event("input", {bubbles:true})); ev("key");
+    await wait(1000/cps * (ch === " " ? 1.4 : 1));
+  }
+}
+
+let pillBusy = null;
+async function pill(ico, txt, y=470, hold=1700){
+  const el = $("#pill"); $("#pillIco").textContent = ico; $("#pillTxt").textContent = txt; ev("pop");
+  await tween(380, p => { el.style.opacity = p; el.style.transform = `translate(-50%, ${y + 30*(1-p)}px) scale(${.9+.1*p})`; }, E.back);
+  await wait(hold);
+  await tween(300, p => { el.style.opacity = 1-p; el.style.transform = `translate(-50%, ${y - 16*p}px)`; });
+}
+
+let titAtual = null;
+function fit(h1){ let fs = 80; h1.style.fontSize = fs + "px"; while(h1.scrollWidth > 1000 && fs > 50){ fs -= 2; h1.style.fontSize = fs + "px"; } }
+async function caption(t, s){
+  const box = $("#tituloBox");
+  const n = document.createElement("div"); n.className = "tit";
+  n.innerHTML = `<h1>${t}</h1><p>${s}</p>`; n.style.opacity = 0; box.appendChild(n); fit(n.querySelector("h1"));
+  const old = titAtual; titAtual = n; ev("whoosh");
+  if(old) tween(320, p => { old.style.opacity = 1-p; old.style.transform = `translateY(${-18*p}px)`; }).then(() => old.remove());
+  await wait(old ? 160 : 0);
+  await tween(480, p => { n.style.opacity = p; n.style.transform = `translateY(${22*(1-p)}px)`; }, E.out);
+}
+
+const ICONS = {
+  grid: '<rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/>',
+  telas: '<rect x="2" y="4" width="14" height="10" rx="1.5"/><path d="M5 17h8"/><rect x="17.5" y="8" width="5" height="10" rx="1.2"/><path d="M9 14v3"/>',
+  coracao: '<path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.4 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10z"/>'
+};
+async function inter(ico, t, s, hold, during){
+  const el = $("#inter"), g = el.querySelector(".gira");
+  $("#interIco").innerHTML = ICONS[ico]; $("#interT").textContent = t; $("#interS").textContent = s; ev("inter");
+  let rot = true; (function spin(){ if(!rot) return; g.style.transform = `rotate(${(now()/4) % 360}deg)`; requestAnimationFrame(spin); })();
+  await tween(450, p => { el.style.opacity = p; el.querySelector(".anel").style.transform = `scale(${.7+.3*p})`; }, E.out);
+  const d = during ? during() : null;
+  await wait(hold); if(d) await d;
+  await tween(450, p => { el.style.opacity = 1-p; });
+  rot = false;
+}
+
+/* ================= foto de exemplo (ilustração gerada aqui mesmo) ================= */
+function fotoExemplo(){
+  const c = document.createElement("canvas"); c.width = 900; c.height = 700; const g = c.getContext("2d");
+  const sky = g.createLinearGradient(0,0,0,700); sky.addColorStop(0,"#F7B7C9"); sky.addColorStop(.55,"#FBD3A8"); sky.addColorStop(1,"#F59E86");
+  g.fillStyle = sky; g.fillRect(0,0,900,700);
+  const sun = g.createRadialGradient(450,410,10,450,410,190); sun.addColorStop(0,"#FFF6D8"); sun.addColorStop(.45,"#FFE3A1"); sun.addColorStop(1,"rgba(255,227,161,0)");
+  g.fillStyle = sun; g.beginPath(); g.arc(450,410,190,0,Math.PI*2); g.fill();
+  g.fillStyle = "#C9667E"; g.beginPath(); g.moveTo(0,520); g.bezierCurveTo(220,430,380,560,560,500); g.bezierCurveTo(700,455,820,500,900,480); g.lineTo(900,700); g.lineTo(0,700); g.fill();
+  g.fillStyle = "#8E3F63"; g.beginPath(); g.moveTo(0,600); g.bezierCurveTo(240,540,480,650,900,570); g.lineTo(900,700); g.lineTo(0,700); g.fill();
+  // mãe e filha de mãos dadas (silhueta)
+  g.fillStyle = "#4A1E3A";
+  const pessoa = (x, y, h) => { g.beginPath(); g.arc(x, y - h*.86, h*.11, 0, Math.PI*2); g.fill();
+    g.beginPath(); g.moveTo(x - h*.16, y - h*.02); g.quadraticCurveTo(x - h*.13, y - h*.55, x, y - h*.72); g.quadraticCurveTo(x + h*.13, y - h*.55, x + h*.16, y - h*.02); g.fill(); };
+  pessoa(395, 560, 190); pessoa(515, 572, 120);
+  g.lineWidth = 9; g.strokeStyle = "#4A1E3A"; g.lineCap = "round"; g.beginPath(); g.moveTo(428, 470); g.quadraticCurveTo(470, 500, 500, 490); g.stroke();
+  g.fillStyle = "rgba(255,255,255,.85)";
+  const cor = (x,y,s) => { g.beginPath(); g.moveTo(x, y + s*.3); g.bezierCurveTo(x - s, y - s*.4, x - s*.4, y - s, x, y - s*.45); g.bezierCurveTo(x + s*.4, y - s, x + s, y - s*.4, x, y + s*.3); g.fill(); };
+  cor(250,190,34); cor(650,150,26); cor(720,250,18); cor(170,300,16);
+  return new Promise(r => c.toBlob(r, "image/jpeg", .92));
+}
+
+/* ================= preparação ================= */
+async function prepSite(d){
+  const w = d.win(), doc = d.doc();
+  w.Element.prototype.setPointerCapture = function(){};
+  w.Element.prototype.releasePointerCapture = function(){};
+  w.open = url => { d.lastOpen = url; return null; };
+  const st = doc.createElement("style");
+  st.textContent = "html{scrollbar-width:none}::-webkit-scrollbar{display:none}";
+  doc.head.appendChild(st);
+}
+window.__ready = false;
+window.addEventListener("load", async () => {
+  await document.fonts.ready;
+  await Promise.all(['500 14px Nunito','600 28px Nunito','700 17px Nunito','800 16px Nunito','400 80px "Bebas Neue"','italic 400 82px Fraunces'].map(f => document.fonts.load(f)));
+  for(const d of [P, TB, L]){
+    await new Promise(r => { const ok = () => d.doc() && d.doc().readyState === "complete"; if(ok()) r(); else d.iframe.addEventListener("load", r, {once:true}); });
+    await d.doc().fonts.ready;
+    prepSite(d);
+  }
+  // espera a caneca 3D (three.js) ficar pronta nos três
+  for(let i = 0; i < 200 && !P.q(".produto-3d.pronto, .pronto #tela-caneca, #tela-caneca"); i++) await wait(50);
+  window.fotoBlob = await fotoExemplo();
+  window.__ready = true;
+});
+
+/* ================= roteiro ================= */
+window.start = async function(){
+  T0 = now();
+  const intro = $("#intro");
+  intro.querySelector("img").style.opacity = 0;
+  $("#cap").style.opacity = 0;
+
+  // ---- abertura
+  tween(1000, p => { const i = intro.querySelector("img"); i.style.opacity = p; i.style.transform = `scale(${.86 + .14*p})`; }, E.out);
+  intro.querySelector(".sub").style.opacity = 0; intro.querySelector(".ver").style.opacity = 0; $("#url").style.opacity = 0;
+  await at(500); tween(700, p => { intro.querySelector(".sub").style.opacity = p; });
+  await at(900); tween(500, p => { $("#url").style.opacity = p; $("#url").style.transform = `translateY(${20*(1-p)}px)`; }, E.out);
+  const url = "fondlysublimados.com.br";
+  await at(1250);
+  for(let i = 1; i <= url.length; i++){ $("#urlTxt").textContent = url.slice(0, i); ev("key"); await wait(46); }
+  (function blink(){ const c = $("#urlCur"); if(!c || !c.isConnected) return; c.style.opacity = Math.floor(now()/420) % 2 ? 0 : 1; requestAnimationFrame(blink); })();
+  await at(2450); tween(600, p => { const v = intro.querySelector(".ver"); v.style.opacity = p; v.style.transform = `translateY(${16*(1-p)}px)`; }, E.out);
+
+  // ---- entra o celular
+  await at(3500);
+  ev("whoosh");
+  tween(650, p => { intro.style.opacity = 1-p; intro.style.transform = `scale(${1 + .06*p})`; }).then(() => intro.remove());
+  // reinicia as animações de entrada do site, como quem acabou de abrir
+  { const doc = P.doc(); const els = [...doc.querySelectorAll(".hero-logo, .hero-intro .rotulo, .hero-intro h1, .hero-intro .lead, .hero-intro .frase-marca, .montagem, .palco")];
+    els.forEach(e => e.style.animation = "none"); void doc.body.offsetHeight; }
+  tween(600, p => { $("#cap").style.opacity = p; });
+  caption("A sua foto vira <em>presente</em>", "O site da Fondly, feito pra vender pelo celular");
+  await P.to({y: PH.y}, 1100, E.out);
+  { const doc = P.doc(); doc.querySelectorAll(".hero-logo, .hero-intro .rotulo, .hero-intro h1, .hero-intro .lead, .hero-intro .frase-marca, .montagem, .palco").forEach(e => e.style.animation = ""); }
+
+  await at(6200); await P.scrollTo(470, 2200);
+
+  // ---- menu hambúrguer
+  await at(8700);
+  caption("Menu que cabe na mão", "Tudo a um toque, sem o cliente se perder");
+  await P.scrollTo(0, 900);
+  await at(9900); await tap(P, P.q("#hamburguer"));
+  await at(11300); await tap(P, P.q("#menu-movel a[href='#palco']"));
+  await wait(200); fShow(0);
+
+  // ---- montagem com prévia
+  await at(12400);
+  caption("Monte o seu, <em>do seu jeito</em>", "9 produtos com prévia na hora");
+  await at(12700); { const y = P.yOf(P.q("#palco"), 50); if(Math.abs(P.sy() - y) > 4) await P.scrollTo(y, 500); }
+  const abas = n => P.q(`.aba[data-produto='${n}']`);
+  await at(13000); await tap(P, abas("camiseta"));
+  await at(14300); await tap(P, abas("almofada"));
+  await at(15600); await tap(P, abas("azulejo"));
+  await at(16900); await tap(P, abas("mousepad"));
+  await at(18200); await tap(P, abas("caneca"));
+
+  // ---- caneca 3D + cores
+  await at(19300);
+  caption("Caneca em 3D <em>de verdade</em>", "Arraste pra girar e troque a cor na hora");
+  const cv = P.q("#tela-caneca");
+  { const a = P.pt(cv, .5, .5);
+    await drag(P, cv, [{x:a.x-120, y:a.y}, {x:a.x+170, y:a.y+20}, {x:a.x-90, y:a.y-40}, {x:a.x+60, y:a.y}], 2600); }
+  const cores = () => P.qa("#cores button");
+  await at(22700); await tap(P, cores()[1]);
+  await at(23700); await tap(P, cores()[2]);
+  await at(24700); await tap(P, cores()[3]);
+  await at(25700); await tap(P, cores()[0]);
+
+  // ---- frase + foto + preço
+  await at(26600);
+  caption("Escreve a frase, <em>vê na hora</em>", "Foto, frase e preço, tudo em tempo real");
+  fShow(0);
+  { const palco = P.q("#palco"); await P.scrollTo(P.yOf(palco, -70), 900); }
+  const fr = P.q("#frase");
+  await at(27800); await tap(P, fr, {fx:.3});
+  fr.focus({preventScroll:true});
+  await typeInto(P, fr, "Mãe, você é o meu lar ♥", 12);
+  fShow(0);
+  await at(31000);
+  await P.scrollToEl(P.q("#foto-area"), 420, 800);
+  await at(32000); await tap(P, P.q("#foto-area"), {fx:.3});
+  { const w = P.win(); const dt = new w.DataTransfer(); dt.items.add(new w.File([window.fotoBlob], "foto-mae.jpg", {type:"image/jpeg"}));
+    const inp = P.q("#foto"); inp.files = dt.files; inp.dispatchEvent(new w.Event("change", {bubbles:true})); }
+  fShow(0);
+  await at(33400); await P.scrollTo(P.yOf(P.q("#palco"), -10), 900);
+  pill("📷", "Foto aplicada na prévia", 470, 1500);
+  { const a = P.pt(cv, .5, .5); await at(34600);
+    await drag(P, cv, [{x:a.x+110, y:a.y}, {x:a.x-160, y:a.y+10}, {x:a.x+40, y:a.y}], 1800); }
+  fShow(0);
+  await at(37000); await P.scrollToEl(P.q(".total"), 380, 800);
+  const qtd = P.q("#qtd");
+  await at(38000); await tap(P, qtd);
+  qtd.value = "2"; qtd.dispatchEvent(new (P.win().Event)("input", {bubbles:true})); ev("key");
+  pill("💰", "Preço atualizado: R$ 60,00", 470, 1300);
+
+  // ---- WhatsApp
+  await at(39800);
+  caption("Pedido pronto <em>no WhatsApp</em>", "Tudo o que o cliente escolheu já vai escrito");
+  await at(40400); await tap(P, P.q("#pedir"));
+  fShow(0);
+  const texto = decodeURIComponent((P.lastOpen || "").split("text=")[1] || "");
+  $("#waCampo").textContent = texto;
+  await at(41400); ev("whoosh");
+  await tween(550, p => { $("#wa").style.transform = `translateX(${100*(1-p)}%)`; }, E.out);
+  await at(43300);
+  { const s = $(".phone .send"); const r = s.getBoundingClientRect(); F.x = r.left + r.width/2 + 60; F.y = r.top + r.height/2 + 90; fApply(); fShow(1);
+    await fTo(r.left + r.width/2, r.top + r.height/2, 450); await press(); }
+  fShow(0);
+  const hora = '<span class="h">14:32</span>';
+  { const b = document.createElement("div"); b.className = "b out"; b.innerHTML = texto.replace(/</g,"&lt;") + hora; b.style.opacity = 0;
+    $("#waCampo").textContent = ""; $("#waMsgs").appendChild(b); ev("send");
+    await tween(300, p => { b.style.opacity = p; b.style.transform = `translateY(${14*(1-p)}px)`; }, E.out); }
+  await at(45000);
+  $("#waSt").textContent = "digitando..."; $("#waSt").classList.add("dig");
+  const dots = document.createElement("div"); dots.className = "dots"; dots.innerHTML = "<i></i><i></i><i></i>"; $("#waMsgs").appendChild(dots);
+  (function pulse(){ if(!dots.isConnected) return; [...dots.children].forEach((d, i) => d.style.opacity = .35 + .65*Math.max(0, Math.sin(now()/160 - i*.9))); requestAnimationFrame(pulse); })();
+  await at(46600);
+  dots.remove(); $("#waSt").textContent = "online"; $("#waSt").classList.remove("dig");
+  { const b = document.createElement("div"); b.className = "b in"; b.innerHTML = "Oi! Que presente lindo 💕\nManda a foto aqui que a gente prepara a arte pra você aprovar antes de imprimir." + hora; b.style.opacity = 0;
+    $("#waMsgs").appendChild(b); ev("recv");
+    await tween(300, p => { b.style.opacity = p; b.style.transform = `translateY(${14*(1-p)}px)`; }, E.out); }
+
+  // ---- catálogo
+  await at(48800);
+  await inter("grid", "Catálogo completo", "Canecas · camisetas · almofadas e mais", 1500, async () => {
+    $("#wa").style.transform = "translateX(100%)";
+    await P.scrollTo(P.yOf(P.q("#produtos"), 20), 10);
+  });
+  caption("Escolha o que <em>vai levar</em>", "Preço, ocasião e um botão pra montar em cada item");
+  await at(51400); await P.scrollTo(P.yOf(P.qa(".produto-linha")[1], 60), 4200, E.io);
+  // almofada: "Montar a minha" leva direto pra montagem, com a frase e a foto já lá
+  { const btn = P.q(".escolher[data-ir='almofada']"); await P.scrollToEl(btn, 520, 700);
+    await at(56700); caption("Um toque e já vai <em>pra montagem</em>", "A frase e a foto continuam lá");
+    await at(57100); await tap(P, btn); fShow(0); }
+
+  // ---- portfólio
+  await at(60500);
+  caption("Um pouquinho do que <em>já saiu daqui</em>", "Portfólio com fotos reais, é só arrastar");
+  await P.scrollToEl(P.q("#portfolio"), 50, 1400);
+  const car = P.qa(".portfolio-carrossel");
+  async function swipe(item){ const j = item.querySelector(".pc-janela"); const a = P.pt(j, .5, .5);
+    await drag(P, j, [{x:a.x+180, y:a.y}, {x:a.x-200, y:a.y+10}], 600); }
+  await P.scrollToEl(car[0], 90, 700);
+  await at(63300); await swipe(car[0]);
+  await at(64500); await swipe(car[0]);
+  fShow(0);
+  await at(65500); await P.scrollToEl(car[1], 90, 1000);
+  await at(66700); await swipe(car[1]);
+  fShow(0);
+
+  // ---- como funciona
+  await at(68200);
+  caption("Quatro passos, <em>sem complicação</em>", "O cliente entende tudo antes de pedir");
+  await P.scrollToEl(P.q("#funciona"), 40, 1300);
+  await wait(300); await P.scrollTo(P.sy() + 520, 2600);
+
+  // ---- ocasiões + dúvidas
+  await at(73000);
+  caption("Dúvidas? <em>Já estão respondidas</em>", "Perguntas frequentes que abrem com um toque");
+  await P.scrollToEl(P.q("#duvidas"), 30, 1300);
+  const sums = P.qa(".faq summary");
+  await at(74900); await tap(P, sums[1]);
+  await at(76400); await tap(P, sums[3]);
+  await wait(300); fShow(0);
+
+  // ---- qualquer tela
+  await at(78400);
+  await inter("telas", "Em qualquer tela", "Celular · tablet · computador", 1500, async () => {
+    await P.scrollTo(0, 10);
+    const LS = {x:(1080-1472*.68)/2, y:390, s:.68};
+    L.set({x:LS.x, y:LS.y + 60, s:LS.s, o:0}); TB.set({x:70, y:1150, s:.62, o:0});
+  });
+  caption("Responsivo <em>de verdade</em>", "O mesmo site se ajusta a cada tamanho de tela");
+  ev("whoosh");
+  P.to({x:1080-70-418*.867, y:1090, s:.867}, 1100, E.io);
+  L.to({y:390, o:1}, 1000, E.out);
+  await wait(200); await TB.to({y:1090, o:1}, 1000, E.out);
+  await at(82400);
+  { const ds = [P, TB, L]; const alvo = d => d.yOf(d.q("#produtos"), 0); const ys = ds.map(alvo);
+    await Promise.all(ds.map((d, i) => d.scrollTo(ys[i], 3000))); }
+  await at(85800);
+  { const ds = [P, TB, L]; await Promise.all(ds.map(d => d.scrollTo(d.yOf(d.q("#portfolio"), 0), 1800))); }
+
+  // ---- computador
+  await at(88200);
+  caption("No computador, <em>ainda mais bonito</em>", "Montagem e prévia lado a lado");
+  ev("whoosh");
+  P.to({o:0, y:1300}, 700); TB.to({o:0, y:1300}, 700);
+  await L.scrollTo(L.yOf(L.q(".montagem"), 110), 900);
+  await L.to({x:(1080-1472*.7)/2, y:430, s:.7}, 900, E.io);
+  const chips = [...document.querySelectorAll(".chip")];
+  (async () => { for(const [i, c] of chips.entries()){ await wait(i ? 900 : 300); ev("pop"); tween(500, p => { c.style.opacity = p; c.style.transform = `translateY(${24*(1-p)}px)`; }, E.out); } })();
+  const lf = L.q("#frase");
+  await at(90200); await tap(L, lf, {fx:.3});
+  lf.focus({preventScroll:true});
+  await typeInto(L, lf, "Feliz aniversário, vó!", 13);
+  fShow(0);
+  { const cv2 = L.q("#tela-caneca"); const a = L.pt(cv2, .5, .5);
+    await at(92600); await drag(L, cv2, [{x:a.x-70, y:a.y}, {x:a.x+110, y:a.y}, {x:a.x, y:a.y}], 1500); }
+  await at(94400); await tap(L, L.qa("#cores button")[2]);
+  fShow(0);
+
+  // ---- encerramento
+  await at(95800);
+  ev("outro");
+  const o = $("#outro");
+  [...o.children].forEach(c => c.style.opacity = 0);
+  await tween(700, p => { o.style.opacity = p; });
+  const kids = [...o.children];
+  for(const [i, c] of kids.entries()){
+    tween(650, p => { c.style.opacity = p; c.style.transform = `translateY(${26*(1-p)}px)`; }, E.out);
+    await wait(i === 0 ? 400 : 260);
+  }
+  await at(101500);
+  window.__done = true;
+};
+</script>
+</body></html>
