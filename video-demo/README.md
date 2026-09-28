@@ -21,7 +21,7 @@ cp ../img-png-1-71768d12b0ce.png www/logo.png && cp virtus-apex.png www/
 npx http-server www -p 8090 -s &
 # three.min.js (r128) ao lado do capture.js: npm pack three@0.128.0
 SPEED=1.2834 node capture.js video_silent.mp4 video   # grava quadro a quadro, 1,28x mais rápido, e gera events.json
-python3 audio.py 62 events.json                  # trilha + efeitos sincronizados → audio.wav
+python3 audio.py 63 events.json                  # trilha + efeitos sincronizados → audio.wav
 ffmpeg -i video_silent.mp4 -i audio.wav -c:v libx264 -crf 20 -preset slow \
   -pix_fmt yuv420p -c:a aac -b:a 160k -shortest -movflags +faststart fondly-demo.mp4
 ```
