@@ -218,7 +218,9 @@ function tween(dur, fn, ease=E.io){
 window.__events = [];
 let T0 = 0;
 const ev = (type, extra) => window.__events.push(Object.assign({t: now()-T0, type}, extra||{}));
-async function at(ms){ const d = T0 + ms - now(); if(d > 0) await wait(d); }
+const CUTS = [[8700,12400],[68200,73000],[85800,88200],[99500,101500]];
+const cut = ms => ms - CUTS.reduce((s,[a,b]) => s + (ms >= b ? b-a : 0), 0);
+async function at(ms){ const d = T0 + cut(ms) - now(); if(d > 0) await wait(d); }
 
 /* ================= dispositivos ================= */
 function Dev(id, fid){
@@ -413,18 +415,10 @@ window.start = async function(){
 
   await at(6200); await P.scrollTo(470, 2200);
 
-  // ---- menu hambúrguer
-  await at(8700);
-  caption("Menu que cabe na mão", "Tudo a um toque, sem o cliente se perder");
-  await P.scrollTo(0, 900);
-  await at(9900); await tap(P, P.q("#hamburguer"));
-  await at(11300); await tap(P, P.q("#menu-movel a[href='#palco']"));
-  await wait(200); fShow(0);
-
   // ---- montagem com prévia
   await at(12400);
   caption("Monte o seu, <em>do seu jeito</em>", "9 produtos com prévia na hora");
-  await at(12700); { const y = P.yOf(P.q("#palco"), 50); if(Math.abs(P.sy() - y) > 4) await P.scrollTo(y, 500); }
+  await at(12700); { const y = P.yOf(P.q("#palco"), 50); if(Math.abs(P.sy() - y) > 4) await P.scrollTo(y, 900); }
   const abas = n => P.q(`.aba[data-produto='${n}']`);
   await at(13000); await tap(P, abas("camiseta"));
   await at(14300); await tap(P, abas("almofada"));
@@ -526,12 +520,6 @@ window.start = async function(){
   await at(66700); await swipe(car[1]);
   fShow(0);
 
-  // ---- como funciona
-  await at(68200);
-  caption("Quatro passos, <em>sem complicação</em>", "O cliente entende tudo antes de pedir");
-  await P.scrollToEl(P.q("#funciona"), 40, 1300);
-  await wait(300); await P.scrollTo(P.sy() + 520, 2600);
-
   // ---- ocasiões + dúvidas
   await at(73000);
   caption("Dúvidas? <em>Já estão respondidas</em>", "Perguntas frequentes que abrem com um toque");
@@ -556,8 +544,6 @@ window.start = async function(){
   await at(82400);
   { const ds = [P, TB, L]; const alvo = d => d.yOf(d.q("#produtos"), 0); const ys = ds.map(alvo);
     await Promise.all(ds.map((d, i) => d.scrollTo(ys[i], 3000))); }
-  await at(85800);
-  { const ds = [P, TB, L]; await Promise.all(ds.map(d => d.scrollTo(d.yOf(d.q("#portfolio"), 0), 1800))); }
 
   // ---- computador
   await at(88200);
@@ -589,7 +575,7 @@ window.start = async function(){
     tween(650, p => { c.style.opacity = p; c.style.transform = `translateY(${26*(1-p)}px)`; }, E.out);
     await wait(i === 0 ? 400 : 260);
   }
-  await at(101500);
+  await at(99500);
   window.__done = true;
 };
 </script>

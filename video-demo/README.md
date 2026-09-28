@@ -1,6 +1,6 @@
 # Vídeo de demonstração do site
 
-`fondly-demo.mp4` é o vídeo vertical (1080×1920, 30 fps, cerca de 1min40) que mostra
+`fondly-demo.mp4` é o vídeo vertical (1080×1920, 30 fps, cerca de 1min29) que mostra
 o site funcionando: montagem com prévia, caneca 3D, foto e frase aplicadas na hora,
 pedido indo pro WhatsApp, catálogo, portfólio, dúvidas, e o layout se ajustando no
 celular, no tablet e no computador.
@@ -21,7 +21,7 @@ cp ../img-png-1-71768d12b0ce.png www/logo.png
 npx http-server www -p 8090 -s &
 # three.min.js (r128) ao lado do capture.js: npm pack three@0.128.0
 node capture.js video_silent.mp4 video      # grava quadro a quadro e gera events.json
-python3 audio.py 101.5 events.json          # trilha + efeitos sincronizados → audio.wav
+python3 audio.py 89 events.json          # trilha + efeitos sincronizados → audio.wav
 ffmpeg -i video_silent.mp4 -i audio.wav -c:v libx264 -crf 20 -preset slow \
   -pix_fmt yuv420p -c:a aac -b:a 160k -shortest -movflags +faststart fondly-demo.mp4
 ```

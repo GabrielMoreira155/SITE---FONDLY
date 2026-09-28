@@ -33,7 +33,10 @@ CHORDS = [[50, 57, 61, 64, 66], [47, 54, 57, 61, 62], [43, 50, 54, 57, 62], [45,
 ROOTS = [38, 35, 31, 33]
 
 # seções: tempos (s) em que a bateria some (intro, interlúdios, encerramento)
-DRUM_OFF = [(0, 3.6), (48.8, 51.3), (78.4, 80.9), (95.8, DUR)]
+_ev = json.load(open(sys.argv[2] if len(sys.argv) > 2 else 'events.json'))
+_first = min(e['t'] for e in _ev if e['type'] == 'whoosh') / 1000
+DRUM_OFF = [(0, _first + .1)] + [(e['t'] / 1000, e['t'] / 1000 + 2.5) for e in _ev if e['type'] == 'inter'] \
+    + [(e['t'] / 1000, DUR) for e in _ev if e['type'] == 'outro']
 def drums_on(t): return not any(a <= t < b for a, b in DRUM_OFF)
 
 # --- pad
