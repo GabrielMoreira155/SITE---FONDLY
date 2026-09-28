@@ -6,6 +6,8 @@ const fs = require('fs');
 const S = __dirname;
 const [,, OUT, MODE = 'video', A = '0', B = '999999', STEP = '1'] = process.argv;
 const FPS = 30, DT = 1000 / FPS;
+// SPEED > 1 acelera o vídeo: cada quadro de saída avança SPEED × DT no tempo da página
+const SPEED = +(process.env.SPEED || 1), VDT = DT * SPEED;
 
 (async () => {
   const browser = await chromium.launch({
@@ -27,11 +29,11 @@ const FPS = 30, DT = 1000 / FPS;
 
   const T0 = Number(process.hrtime.bigint() / 1000000n) + 1000;
   let tick = 0;
-  async function frame(shot) {
-    await cdp.send('Emulation.setVirtualTimePolicy', { policy: 'pauseIfNetworkFetchesPending', budget: DT });
+  async function frame(shot, dt = VDT) {
+    await cdp.send('Emulation.setVirtualTimePolicy', { policy: 'pauseIfNetworkFetchesPending', budget: dt });
     await new Promise(r => cdp.once('Emulation.virtualTimeBudgetExpired', r));
-    tick += DT;
-    const args = { frameTimeTicks: T0 + tick, interval: DT, noDisplayUpdates: false };
+    tick += dt;
+    const args = { frameTimeTicks: T0 + tick, interval: dt, noDisplayUpdates: false };
     if (shot) args.screenshot = { format: 'png' };
     const r = await cdp.send('HeadlessExperimental.beginFrame', args);
     return r.screenshotData ? Buffer.from(r.screenshotData, 'base64') : null;
@@ -41,11 +43,11 @@ const FPS = 30, DT = 1000 / FPS;
   // aquecimento: carrega tudo até a página dizer que está pronta
   let n = 0;
   while (true) {
-    await frame(false); n++;
+    await frame(false, DT); n++;
     if (n % 10 === 0 && await ev('window.__ready === true').catch(() => false)) break;
     if (n > 3000) throw new Error('não ficou pronto');
   }
-  for (let i = 0; i < 45; i++) await frame(false);
+  for (let i = 0; i < 45; i++) await frame(false, DT);
   console.log('pronto após', n, 'quadros');
   await ev('window.start(); 1');
 
@@ -72,7 +74,7 @@ const FPS = 30, DT = 1000 / FPS;
     if (tms > +B) break;
     if (i % 15 === 0 && await ev('window.__done === true')) break;
   }
-  fs.writeFileSync(S + '/events.json', JSON.stringify(await ev('window.__events')));
+  fs.writeFileSync(S + '/events.json', JSON.stringify((await ev('window.__events')).map(e => ({ ...e, t: e.t / SPEED }))));
   if (ff) { ff.stdin.end(); await new Promise(r => ff.on('close', r)); }
   await browser.close();
   console.log('fim');

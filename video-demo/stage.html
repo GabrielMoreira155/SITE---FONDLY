@@ -96,7 +96,7 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
 #intro .ver{margin-top:44px;font:400 64px/1 "Bebas Neue";letter-spacing:.06em;color:var(--tinta)}
 
 #outro{background:radial-gradient(ellipse 80% 50% at 50% 40%,rgba(44,32,56,.97),rgba(16,10,22,.99));opacity:0}
-#outro .selo{padding:14px 30px;border:2px solid var(--ouro);color:var(--ouro);font:800 24px Nunito;letter-spacing:.42em;padding-right:calc(30px - .42em)}
+#outro .va{width:380px;height:auto}
 #outro h2{margin-top:50px;font:400 92px/1 "Bebas Neue";letter-spacing:.02em;white-space:nowrap}
 #outro .serif{margin-top:8px;font:italic 400 82px/1.1 Fraunces;color:var(--rosa)}
 #outro .desc{margin-top:40px;font:600 32px/1.45 Nunito;color:var(--suave)}
@@ -179,7 +179,7 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
 </div>
 
 <div id="outro">
-  <div class="selo">VIRTUS APEX</div>
+  <img class="va" src="virtus-apex.png" alt="Virtus Apex Marketing">
   <h2>SITE + PEDIDO NO WHATSAPP</h2>
   <div class="serif">feito sob medida</div>
   <div class="desc">Vitrine linda, montagem com prévia<br>e o pedido chegando pronto no celular.</div>
@@ -212,7 +212,8 @@ function tween(dur, fn, ease=E.io){
 window.__events = [];
 let T0 = 0;
 const ev = (type, extra) => window.__events.push(Object.assign({t: now()-T0, type}, extra||{}));
-const CUTS = [[8700,12400],[68200,73000],[85800,88200],[99500,101500]];
+const CUTS = [[4700,6100],[8700,12400],[15500,18100],[24600,25600],[47700,48700],[49700,50200],[55150,56650],
+  [59000,60400],[64600,65400],[68200,73000],[77500,78300],[79400,79900],[85450,85800],[85800,88200]];
 const cut = ms => ms - CUTS.reduce((s,[a,b]) => s + (ms >= b ? b-a : 0), 0);
 async function at(ms){ const d = T0 + cut(ms) - now(); if(d > 0) await wait(d); }
 
@@ -416,8 +417,6 @@ window.start = async function(){
   const abas = n => P.q(`.aba[data-produto='${n}']`);
   await at(13000); await tap(P, abas("camiseta"));
   await at(14300); await tap(P, abas("almofada"));
-  await at(15600); await tap(P, abas("azulejo"));
-  await at(16900); await tap(P, abas("mousepad"));
   await at(18200); await tap(P, abas("caneca"));
 
   // ---- caneca 3D + cores
@@ -429,7 +428,6 @@ window.start = async function(){
   const cores = () => P.qa("#cores button");
   await at(22700); await tap(P, cores()[1]);
   await at(23700); await tap(P, cores()[2]);
-  await at(24700); await tap(P, cores()[3]);
   await at(25700); await tap(P, cores()[0]);
 
   // ---- frase + foto + preço
@@ -488,12 +486,12 @@ window.start = async function(){
 
   // ---- catálogo
   await at(48800);
-  await inter("grid", "Catálogo completo", "Canecas · camisetas · almofadas e mais", 1500, async () => {
+  await inter("grid", "Catálogo completo", "Canecas · camisetas · almofadas e mais", 1000, async () => {
     $("#wa").style.transform = "translateX(100%)";
     await P.scrollTo(P.yOf(P.q("#produtos"), 20), 10);
   });
   caption("Escolha o que <em>vai levar</em>", "Preço, ocasião e um botão pra montar em cada item");
-  await at(51400); await P.scrollTo(P.yOf(P.qa(".produto-linha")[1], 60), 4200, E.io);
+  await at(51400); await P.scrollTo(P.yOf(P.qa(".produto-linha")[1], 60), 3000, E.io);
   // almofada: "Montar a minha" leva direto pra montagem, com a frase e a foto já lá
   { const btn = P.q(".escolher[data-ir='almofada']"); await P.scrollToEl(btn, 520, 700);
     await at(56700); caption("Um toque e já vai <em>pra montagem</em>", "A frase e a foto continuam lá");
@@ -508,7 +506,6 @@ window.start = async function(){
     await drag(P, j, [{x:a.x+180, y:a.y}, {x:a.x-200, y:a.y+10}], 600); }
   await P.scrollToEl(car[0], 90, 700);
   await at(63300); await swipe(car[0]);
-  await at(64500); await swipe(car[0]);
   fShow(0);
   await at(65500); await P.scrollToEl(car[1], 90, 1000);
   await at(66700); await swipe(car[1]);
@@ -525,7 +522,7 @@ window.start = async function(){
 
   // ---- qualquer tela
   await at(78400);
-  await inter("telas", "Em qualquer tela", "Celular · tablet · computador", 1500, async () => {
+  await inter("telas", "Em qualquer tela", "Celular · tablet · computador", 1000, async () => {
     await P.scrollTo(0, 10);
     const LS = {x:(1080-1472*.68)/2, y:390, s:.68};
     L.set({x:LS.x, y:LS.y + 60, s:LS.s, o:0}); TB.set({x:70, y:1150, s:.62, o:0});
@@ -575,7 +572,7 @@ window.start = async function(){
     tween(650, p => { c.style.opacity = p; c.style.transform = `translateY(${26*(1-p)}px)`; }, E.out);
     await wait(i === 0 ? 400 : 260);
   }
-  await at(99500);
+  await at(101900);
   window.__done = true;
 };
 </script>
