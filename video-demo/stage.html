@@ -62,6 +62,8 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
   background:linear-gradient(180deg,#4b3d55,#241a2c);box-shadow:0 18px 40px rgba(0,0,0,.5)}
 .laptop .base::before{content:"";display:block;margin:0 auto;width:220px;height:12px;border-radius:0 0 12px 12px;background:#1a1220}
 
+#devs{position:absolute;inset:0;z-index:10;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0 300px,#000 370px);mask-image:linear-gradient(180deg,transparent 0 300px,#000 370px)}
 /* dedo */
 #finger{position:absolute;left:0;top:0;width:74px;height:74px;margin:-37px 0 0 -37px;border-radius:50%;
   background:rgba(255,255,255,.34);border:3px solid rgba(255,255,255,.85);box-shadow:0 6px 24px rgba(0,0,0,.35);
@@ -101,11 +103,6 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
 #outro .logo{margin-top:80px;width:230px}
 #outro .site{margin-top:18px;font:800 30px Nunito;color:var(--tinta);letter-spacing:.02em}
 
-/* chips do computador */
-#chips{position:absolute;left:0;right:0;top:1300px;z-index:20;display:flex;flex-direction:column;align-items:center;gap:22px}
-.chip{display:flex;align-items:center;gap:18px;padding:22px 34px;border-radius:22px;border:1.5px solid var(--linha);
-  background:rgba(46,35,56,.75);font:700 30px Nunito;color:var(--tinta);opacity:0;min-width:640px}
-.chip b{display:inline-flex;width:48px;height:48px;border-radius:50%;align-items:center;justify-content:center;background:var(--rosa);color:#2C2038;font:800 26px Nunito;flex:none}
 
 /* WhatsApp simulado dentro do celular */
 #wa{position:absolute;left:0;top:44px;width:390px;height:800px;z-index:4;background:#0B141A;transform:translateX(100%);display:flex;flex-direction:column}
@@ -138,6 +135,7 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
   <div id="tituloBox"></div>
 </div>
 
+<div id="devs">
 <div class="dev laptop" id="dLaptop" style="opacity:0">
   <div class="tampa"><div class="tela"><iframe id="fLaptop" src="site/index.html"></iframe></div></div>
   <div class="base"></div>
@@ -166,12 +164,8 @@ body{font-family:Nunito,sans-serif;color:var(--tinta);position:relative}
     <div class="home"></div>
   </div>
 </div>
-
-<div id="chips">
-  <div class="chip"><b>1</b>Montagem e prévia lado a lado</div>
-  <div class="chip"><b>2</b>Caneca 3D que gira com o mouse</div>
-  <div class="chip"><b>3</b>Pedido direto no WhatsApp</div>
 </div>
+
 
 <div id="inter"><div class="anel"><div class="gira"></div><svg id="interIco" viewBox="0 0 24 24"></svg></div><h2 id="interT"></h2><p id="interS"></p></div>
 <div id="pill"><span class="ico" id="pillIco"></span><span id="pillTxt"></span></div>
@@ -551,17 +545,23 @@ window.start = async function(){
   ev("whoosh");
   P.to({o:0, y:1300}, 700); TB.to({o:0, y:1300}, 700);
   await L.scrollTo(L.yOf(L.q(".montagem"), 110), 900);
-  await L.to({x:(1080-1472*.7)/2, y:430, s:.7}, 900, E.io);
-  const chips = [...document.querySelectorAll(".chip")];
-  (async () => { for(const [i, c] of chips.entries()){ await wait(i ? 900 : 300); ev("pop"); tween(500, p => { c.style.opacity = p; c.style.transform = `translateY(${24*(1-p)}px)`; }, E.out); } })();
+  // câmera: ponto do site (coordenadas do iframe) vai pro ponto (cx, cy) do vídeo, na escala s
+  const mira = (ex, ey, s, cx=540, cy=820) => ({x: cx - (16 + ex)*s, y: cy - (16 + ey)*s, s});
+  const centro = el => { const r = el.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2]; };
+  await L.to({x:540 - (16 + 720)*.96, y:420, s:.96}, 900, E.io);
   const lf = L.q("#frase");
-  await at(90200); await tap(L, lf, {fx:.3});
+  { const [mx] = centro(L.q(".montagem")), [, fy] = centro(lf);
+    await at(89700); await L.to(mira(mx, fy, 1.5, 540, 700), 1000, E.io); }
+  await at(90300); await tap(L, lf, {fx:.3});
   lf.focus({preventScroll:true});
-  await typeInto(L, lf, "Feliz aniversário, vó!", 13);
+  await typeInto(L, lf, "Feliz aniversário, vó!", 16);
   fShow(0);
-  { const cv2 = L.q("#tela-caneca"); const a = L.pt(cv2, .5, .5);
-    await at(92600); await drag(L, cv2, [{x:a.x-70, y:a.y}, {x:a.x+110, y:a.y}, {x:a.x, y:a.y}], 1500); }
-  await at(94400); await tap(L, L.qa("#cores button")[2]);
+  const cv2 = L.q("#tela-caneca");
+  { const [px] = centro(L.q("#palco")), [, cy2] = centro(cv2);
+    await at(92700); await L.to(mira(px, cy2, 1.5, 540, 960), 700, E.io); }
+  { const a = L.pt(cv2, .5, .5);
+    await at(93450); await drag(L, cv2, [{x:a.x-110, y:a.y}, {x:a.x+150, y:a.y}, {x:a.x, y:a.y}], 1200); }
+  await at(95000); await tap(L, L.qa("#cores button")[2], {move:350});
   fShow(0);
 
   // ---- encerramento
